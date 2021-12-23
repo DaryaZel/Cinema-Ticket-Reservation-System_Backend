@@ -1,0 +1,22 @@
+{
+  "name": "cinema-ticket-reservation-system__backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DaryaZel/Cinema-Ticket-Reservation-System__Backend.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DaryaZel/Cinema-Ticket-Reservation-System__Backend/issues"
+  },
+  "homepage": "https://github.com/DaryaZel/Cinema-Ticket-Reservation-System__Backend#readme",
+  "dependencies": {
+    "express": "^4.17.2"
+  }
+}
