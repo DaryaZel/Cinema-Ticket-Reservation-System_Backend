@@ -1,4 +1,5 @@
 import Movie from './moviesModel.js';
+import { RequestError } from '../Errors/RequestError.js';
 
 class Service {
     async create(movie) {
@@ -15,7 +16,7 @@ class Service {
     }
     async update(movie) {
         if (!movie._id) {
-            throw new Error('Id not specified');
+            throw new RequestError('Id not specified');
         }
         const updatedMovie = await Movie.findByIdAndUpdate(movie._id, movie, { new: true });
         return updatedMovie;

@@ -1,4 +1,5 @@
-import Service from './moviesService.js'
+import Service from './moviesService.js';
+import { RequestError } from '../Errors/RequestError.js';
 
 class Controller {
     async create(req, res) {
@@ -7,7 +8,7 @@ class Controller {
             return res.json(movie);
         }
         catch (error) {
-            res.status(500).json(error);
+            return res.status(500).json(error);
         }
     }
     async getAll(req, res) {
@@ -16,7 +17,7 @@ class Controller {
             return res.json(movies);
         }
         catch (error) {
-            res.status(500).json(error);
+            return res.status(500).json(error);
         }
     }
     async getOne(req, res) {
@@ -25,7 +26,7 @@ class Controller {
             return res.json(movie);
         }
         catch (error) {
-            res.status(500).json(error);
+            return res.status(500).json(error);
         }
     }
     async update(req, res) {
@@ -34,7 +35,12 @@ class Controller {
             return res.json(movie);
         }
         catch (error) {
-            res.status(500).json(error);
+            if (error instanceof RequestError) {
+                return res.status(400).json(error.message);
+            }
+            else {
+                return res.status(500).json(error);
+            }
         }
     }
     async delete(req, res) {
@@ -43,7 +49,7 @@ class Controller {
             return res.json(movie);
         }
         catch (error) {
-            res.status(500).json(error);
+            return res.status(500).json(error);
         }
     }
 }
