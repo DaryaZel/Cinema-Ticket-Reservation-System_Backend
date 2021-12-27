@@ -1,16 +1,15 @@
 import User from './User.js';
 import Role from './Role.js';
 import bcrypt from 'bcryptjs';
-export const userExistsMessage = 'User already exists';
-export const userDoesNotExistMessage = 'User does not exist';
-export const passwordIsWrongMessage = 'Password is wrong';
+import { AuthenticationError } from '../Errors/AuthenticationError.js';
+import { RegistrationError } from '../Errors/RegistrationError.js';
 
 class Service {
     async signup(user) {
         const { username, password } = user;
         const candidate = await User.findOne({ username });
         if (candidate) {
-            throw new Error(userExistsMessage);
+            throw new RegistrationError('User already exists');
         }
         const hashPassword = bcrypt.hashSync(password, 7);
         const userRole = await Role.findOne({ value: 'Admin' });
@@ -21,11 +20,11 @@ class Service {
         const { username, password } = user;
         const candidate = await User.findOne({ username });
         if (!candidate) {
-            throw new Error(userDoesNotExistMessage);
+            throw new AuthenticationError('User does not exist');
         }
         const validPassword = bcrypt.compareSync(password, candidate.password);
         if (!validPassword) {
-            throw new Error(passwordIsWrongMessage);
+            throw new AuthenticationError('Password is wrong');
         };
         return candidate;
     }

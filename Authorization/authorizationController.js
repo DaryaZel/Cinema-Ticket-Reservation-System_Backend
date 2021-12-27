@@ -1,9 +1,10 @@
 import Service from './authorizationService.js';
 import jwt from 'jsonwebtoken';
 import { secret } from './config.js';
-import { userExistsMessage, userDoesNotExistMessage, passwordIsWrongMessage } from './authorizationService.js';
 import { validationResult } from 'express-validator';
-const fillAllFieldsMessage = 'Fill in all fields';
+import { ValidationError } from '../Errors/ValidationError.js';
+import { AuthenticationError } from '../Errors/AuthenticationError.js';
+import { RegistrationError } from '../Errors/RegistrationError.js';
 
 const generateAccessToken = (id, roles) => {
     const payload = {
@@ -16,18 +17,33 @@ const generateAccessToken = (id, roles) => {
 class Controller {
     async signup(req, res) {
         try {
+            const validationPoints = 2;
             const errors = validationResult(req);
+            const errorsArray = errors.errors
             if (!errors.isEmpty()) {
-                return res.status(400).json({ message: fillAllFieldsMessage });
+                if (errorsArray.length === validationPoints) {
+                    throw new ValidationError("Fill in all fields, password must be at least 4 and no more than 10 symbols");
+                }
+                else if (errorsArray[0].param === 'username') {
+                    throw new ValidationError("Fill in username field");
+                }
+                else if (errorsArray[0].param === 'password') {
+                    throw new ValidationError("Fill in password field, password must be at least 4 and no more than 10 symbols");
+                }
             }
             const user = await Service.signup(req.body);
             return res.json(user);
         }
         catch (error) {
-            if (error.message == userExistsMessage) {
-                res.status(400).json(error.message);
+            if (error instanceof ValidationError) {
+                return res.status(400).json(error.message);
             }
-            res.status(500).json(error);
+            else if (error instanceof RegistrationError) {
+                return res.status(400).json(error.message);
+            }
+            else {
+                return res.status(500).json(error);
+            }
         }
     }
     async login(req, res) {
@@ -37,10 +53,12 @@ class Controller {
             return res.json(token);
         }
         catch (error) {
-            if (error.message == userDoesNotExistMessage || error.message == passwordIsWrongMessage) {
-                res.status(400).json(error.message);
+            if (error instanceof AuthenticationError) {
+                return res.status(400).json(error.message);
             }
-            res.status(500).json(error);
+            else {
+                return res.status(500).json(error);
+            }
         }
     }
     async makeRoles(req, res) {
@@ -48,16 +66,16 @@ class Controller {
             await Service.makeRoles();
         }
         catch (error) {
-            res.status(500).json(error);
+            return res.status(500).json(error);
         }
     }
     async getUsers(req, res) {
         try {
             const users = await Service.getUsers();
-            res.json(users);
+            return res.json(users);
         }
         catch (error) {
-            res.status(500).json(error);
+            return res.status(500).json(error);
         }
     }
 }
