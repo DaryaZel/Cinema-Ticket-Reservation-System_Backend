@@ -10,23 +10,17 @@ class Service {
         return foundMovies;
     }
     async getOne(id) {
-        if (!id) {
-            throw new Error('Id не указан');
-        }
         const foundMovie = await Movie.findById(id);
         return foundMovie;
     }
     async update(movie) {
         if (!movie._id) {
-            throw new Error('Id не указан');
+            throw new Error('Id not specified');
         }
         const updatedMovie = await Movie.findByIdAndUpdate(movie._id, movie, { new: true });
         return updatedMovie;
     }
     async delete(id) {
-        if (!id) {
-            throw new Error('Id не указан');
-        }
         const deletedMovie = await Movie.findByIdAndDelete(id);
         return deletedMovie;
     }
