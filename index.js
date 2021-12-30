@@ -9,9 +9,11 @@ import authorizationRoutes from './Authorization/authorizationRouter.js';
 import mongoose from 'mongoose';
 
 
-
 const PORT = process.env.PORT || 5000;
 const app = express();
+app.get("/", (req, res) => {
+  res.send('Hello World!')
+})
 app.use(express.json());
 app.use('/movie', moviesRoutes);
 app.use('/cinema', cinemaRoutes);
