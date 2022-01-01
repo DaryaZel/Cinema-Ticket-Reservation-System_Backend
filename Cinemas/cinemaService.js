@@ -7,8 +7,21 @@ class Service {
         return createdCinema;
     }
     async getAll() {
-        const foundCinema = await Cinema.find();
-        return foundCinema;
+        let cinemas = await Cinema.aggregate([
+            {
+              $lookup: {
+                from: "cities",
+                localField: "city_id",
+                foreignField: "_id",
+                as: "city"
+              }
+            },
+            {
+              $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ["$city", 0] }, "$$ROOT"] } }
+            },
+            { $project: { city: 0 } }
+          ])
+        return cinemas;
     }
     async getOne(id) {
         const foundCinema = await Cinema.findById(id);
