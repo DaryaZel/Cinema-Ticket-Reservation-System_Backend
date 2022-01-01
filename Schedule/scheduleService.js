@@ -42,6 +42,7 @@ class Service {
       };
       let schedule = {
         "cinemaName": movieSessionData.cinemaName,
+        "cinemaAddress": movieSessionData.cinemaAddress,
         "movies": [movie]
       };
 
