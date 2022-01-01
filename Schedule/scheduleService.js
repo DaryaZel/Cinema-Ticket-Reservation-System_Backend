@@ -36,12 +36,12 @@ class Service {
       };
       let movie = {
         "id": movieSessionData.movie_id,
-        "name": movieSessionData.movieName,
+        "movieName": movieSessionData.movieName,
         "storyline": movieSessionData.storyline,
         "sessions": [session]
       };
       let schedule = {
-        "cinema_name": movieSessionData.cinemaName,
+        "cinemaName": movieSessionData.cinemaName,
         "movies": [movie]
       };
 
@@ -49,7 +49,7 @@ class Service {
     }
 
     function mergeSchedules(mergedSchedules, schedule) {
-      let existingSchedule = mergedSchedules.find(item => item.cinema_name === schedule.cinema_name);
+      let existingSchedule = mergedSchedules.find(item => item.cinemaName === schedule.cinemaName);
       if (existingSchedule) {
         schedule.movies.reduce((mergedMovies, movie) => mergeMovies(mergedMovies, movie), existingSchedule.movies)
       } else {
@@ -60,7 +60,7 @@ class Service {
     }
 
     function mergeMovies(mergedMovies, movie) {
-      let existingMovie = mergedMovies.find(item => item.id === movie.id)
+      let existingMovie = mergedMovies.find(item => item.movieName === movie.movieName)
       if (existingMovie) {
         movie.sessions.forEach(session => {
           if (!existingMovie.sessions.includes(session)) {
