@@ -1,8 +1,9 @@
 import MovieSession from '../MovieSessions/movieSessionModel.js';
 
 class Service {
-  async getAll(city, cinema) {
+  async getAll(city, cinema, date) {
     const allCinemas = 'All cinemas';
+
     let movieSessions = await MovieSession.aggregate([
       {
         $lookup: {
@@ -41,6 +42,11 @@ class Service {
       },
       { $project: { city: 0 } }
     ])
+    let filteredByDateSessions = movieSessions.filter(elem => {
+      let date1=new Date(elem.date).toLocaleDateString();
+      let date2=date;
+      return date1===date2
+    });
     function mapToScheduleObject(movieSessionData) {
       let session = {
         "id": movieSessionData._id,
@@ -89,7 +95,7 @@ class Service {
       return mergedMovies;
     }
 
-    let schedule = movieSessions.map(mapToScheduleObject).reduce(mergeSchedules, []);
+    let schedule = filteredByDateSessions.map(mapToScheduleObject).reduce(mergeSchedules, []);
     let filteredByCitySchedule = schedule.filter(elem => elem.cityName === city);
 
     if (cinema !== allCinemas) {
