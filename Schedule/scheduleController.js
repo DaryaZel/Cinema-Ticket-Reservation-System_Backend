@@ -3,7 +3,9 @@ import Service from './scheduleService.js';
 class Controller {
     async getAll(req, res) {
         try {
-            const schedule = await Service.getAll();
+            const city = req.query.city;
+            const cinema = req.query.cinema;
+            const schedule = await Service.getAll(city, cinema);
             return res.json(schedule);
         }
         catch (error) {

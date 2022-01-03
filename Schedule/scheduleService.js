@@ -1,7 +1,8 @@
 import MovieSession from '../MovieSessions/movieSessionModel.js';
 
 class Service {
-  async getAll() {
+  async getAll(city, cinema) {
+    const allCinemas = 'All cinemas';
     let movieSessions = await MovieSession.aggregate([
       {
         $lookup: {
@@ -26,7 +27,19 @@ class Service {
       {
         $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ["$movie", 0] }, "$$ROOT"] } }
       },
-      { $project: { movie: 0 } }
+      { $project: { movie: 0 } },
+      {
+        $lookup: {
+          from: "cities",
+          localField: "city_id",
+          foreignField: "_id",
+          as: "city"
+        }
+      },
+      {
+        $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ["$city", 0] }, "$$ROOT"] } }
+      },
+      { $project: { city: 0 } }
     ])
     function mapToScheduleObject(movieSessionData) {
       let session = {
@@ -43,6 +56,7 @@ class Service {
       let schedule = {
         "cinemaName": movieSessionData.cinemaName,
         "cinemaAddress": movieSessionData.cinemaAddress,
+        "cityName": movieSessionData.cityName,
         "movies": [movie]
       };
 
@@ -52,31 +66,37 @@ class Service {
     function mergeSchedules(mergedSchedules, schedule) {
       let existingSchedule = mergedSchedules.find(item => item.cinemaName === schedule.cinemaName);
       if (existingSchedule) {
-        schedule.movies.reduce((mergedMovies, movie) => mergeMovies(mergedMovies, movie), existingSchedule.movies)
+        schedule.movies.reduce((mergedMovies, movie) => mergeMovies(mergedMovies, movie), existingSchedule.movies);
       } else {
-        mergedSchedules.push(schedule)
+        mergedSchedules.push(schedule);
       }
 
       return mergedSchedules;
     }
 
     function mergeMovies(mergedMovies, movie) {
-      let existingMovie = mergedMovies.find(item => item.movieName === movie.movieName)
+      let existingMovie = mergedMovies.find(item => item.movieName === movie.movieName);
       if (existingMovie) {
         movie.sessions.forEach(session => {
           if (!existingMovie.sessions.includes(session)) {
-            existingMovie.sessions.push(session)
+            existingMovie.sessions.push(session);
           }
         })
       } else {
-        mergedMovies.push(movie)
+        mergedMovies.push(movie);
       }
 
       return mergedMovies;
     }
 
-    let schedule = movieSessions.map(mapToScheduleObject).reduce(mergeSchedules, [])
-    return schedule
+    let schedule = movieSessions.map(mapToScheduleObject).reduce(mergeSchedules, []);
+    let filteredByCitySchedule = schedule.filter(elem => elem.cityName === city);
+
+    if (cinema !== allCinemas) {
+      let filteredByCinemaSchedule = schedule.filter(elem => elem.cinemaName === cinema);
+      return filteredByCinemaSchedule
+    }
+    return filteredByCitySchedule;
 
   }
 }
