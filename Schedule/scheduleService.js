@@ -3,6 +3,7 @@ import MovieSession from '../MovieSessions/movieSessionModel.js';
 class Service {
   async getAll(city, cinema, date) {
     const allCinemas = 'All cinemas';
+    const wholeCalender = 'Whole calender'
 
     let movieSessions = await MovieSession.aggregate([
       {
@@ -42,11 +43,7 @@ class Service {
       },
       { $project: { city: 0 } }
     ])
-    let filteredByDateSessions = movieSessions.filter(elem => {
-      let date1=new Date(elem.date).toLocaleDateString();
-      let date2=date;
-      return date1===date2
-    });
+
     function mapToScheduleObject(movieSessionData) {
       let session = {
         "id": movieSessionData._id,
@@ -65,8 +62,23 @@ class Service {
         "cityName": movieSessionData.cityName,
         "movies": [movie]
       };
+      let dateSchedule = {
+        "day": new Date(movieSessionData.date).toLocaleDateString(),
+        "schedules": [schedule]
+      };
 
-      return schedule;
+      return dateSchedule;
+    }
+
+    function mergeDateSchedules(mergedDateSchedules, dateSchedule) {
+      let existingDateSchedule = mergedDateSchedules.find(item => item.day === dateSchedule.day);
+      if (existingDateSchedule) {
+        dateSchedule.schedules.reduce((mergedSchedules, schedule) => mergeSchedules(mergedSchedules, schedule), existingDateSchedule.schedules);
+      } else {
+        mergedDateSchedules.push(dateSchedule);
+      }
+
+      return mergedDateSchedules;
     }
 
     function mergeSchedules(mergedSchedules, schedule) {
@@ -76,7 +88,6 @@ class Service {
       } else {
         mergedSchedules.push(schedule);
       }
-
       return mergedSchedules;
     }
 
@@ -95,15 +106,31 @@ class Service {
       return mergedMovies;
     }
 
-    let schedule = filteredByDateSessions.map(mapToScheduleObject).reduce(mergeSchedules, []);
-    let filteredByCitySchedule = schedule.filter(elem => elem.cityName === city);
+    let schedule = movieSessions.map(mapToScheduleObject).reduce(mergeDateSchedules, []);
+
+    let filteredSchedule = schedule.map((elem) => {
+      let dateSchedule = {
+        "day": elem.day,
+        "schedules": elem.schedules.filter(elem => elem.cityName === city)
+      }
+      return dateSchedule
+    })
+
+    if (date !== wholeCalender) {
+      filteredSchedule = filteredSchedule.filter(elem => elem.day === date)
+    }
 
     if (cinema !== allCinemas) {
-      let filteredByCinemaSchedule = schedule.filter(elem => elem.cinemaName === cinema);
-      return filteredByCinemaSchedule
+      filteredSchedule = filteredSchedule.map((elem) => {
+        let dateSchedule = {
+          "day": elem.day,
+          "schedules": elem.schedules.filter(elem => elem.cinemaName === cinema)
+        }
+        return dateSchedule
+      })
     }
-    return filteredByCitySchedule;
-
+    return filteredSchedule;
   }
 }
+
 export default new Service();
