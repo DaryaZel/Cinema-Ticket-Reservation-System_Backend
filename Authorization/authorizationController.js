@@ -18,6 +18,12 @@ const generateAccessToken = (id, userRoles) => {
         { expiresIn: process.env.NODE_ENV === "production" ? EXPIRES_IN_PROD : EXPIRES_IN_DEV }
     )
 }
+const decodedAccessToken = (req) => {
+    const token = req.headers.authorization.split(' ')[1];
+    const user = jwt.verify(token, secret.secretKey);
+    const userId = user.id;
+    return userId;
+}
 
 class Controller {
     async signup(req, res) {
@@ -70,10 +76,11 @@ class Controller {
             return res.status(500).json(error);
         }
     }
-    async getUsers(req, res) {
+    async getUser(req, res) {
         try {
-            const users = await Service.getUsers();
-            return res.json(users);
+            const userId = decodedAccessToken(req)
+            const user = await Service.getUser(userId);
+            return res.json(user);
         }
         catch (error) {
             return res.status(500).json(error);

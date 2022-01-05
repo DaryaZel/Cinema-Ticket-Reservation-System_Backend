@@ -51,9 +51,9 @@ class Service {
         await userRole.save();
         await adminRole.save();
     }
-    async getUsers() {
-        const foundUsers = await User.find();
-        return foundUsers;
+    async getUser(userId) {
+        const foundUser = await User.findById(userId);
+        return foundUser;
     }
 }
 export default new Service();
