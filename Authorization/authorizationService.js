@@ -36,7 +36,6 @@ class AuthorizationService {
         };
         return candidate;
     }
-
     async getUser(userId) {
         const foundUser = await User.findById(userId);
         return foundUser;
