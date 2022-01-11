@@ -5,6 +5,7 @@ import citiesRoutes from './Cities/citiesRouter.js';
 import cinemaRoutes from './Cinemas/cinemaRouter.js';
 import cinemaHallRoutes from './CinemaHalls/cinemaHallRouter.js';
 import scheduleRoutes from './Schedule/scheduleRouter.js';
+import imageRoutes from './ImagesStorage/ImagesRouter.js';
 import movieSessionRoutes from './MovieSessions/movieSessionRouter.js';
 import authorizationRoutes from './Authorization/authorizationRouter.js';
 import mongoose from 'mongoose';
@@ -23,6 +24,7 @@ app.use('/session', movieSessionRoutes);
 app.use('/city', citiesRoutes);
 app.use('/hall', cinemaHallRoutes);
 app.use('/schedule', scheduleRoutes);
+app.use('/image', imageRoutes);
 
 async function startApp() {
   try {
