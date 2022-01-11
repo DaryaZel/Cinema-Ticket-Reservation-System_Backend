@@ -5,7 +5,7 @@ import citiesRoutes from './Cities/citiesRouter.js';
 import cinemaRoutes from './Cinemas/cinemaRouter.js';
 import cinemaHallRoutes from './CinemaHalls/cinemaHallRouter.js';
 import scheduleRoutes from './Schedule/scheduleRouter.js';
-import imageRoutes from './ImagesStorage/ImagesRouter.js';
+import imageRoutes from './ImagesStorage/imagesRouter.js';
 import movieSessionRoutes from './MovieSessions/movieSessionRouter.js';
 import authorizationRoutes from './Authorization/authorizationRouter.js';
 import mongoose from 'mongoose';
