@@ -13,5 +13,14 @@ class Controller {
             return res.status(500).json(error);
         }
     }
+    async getOne(req, res) {
+        try {
+            const movieSchedule = await Service.getOne(req.params.id);
+            return res.json(movieSchedule);
+        }
+        catch (error) {
+            return res.status(500).json(error);
+        }
+    }
 }
 export default new Controller();

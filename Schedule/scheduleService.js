@@ -1,48 +1,13 @@
+import Movie from '../Movies/moviesModel.js';
 import MovieSession from '../MovieSessions/movieSessionModel.js';
+import { movieSessionSample } from './helpers/helpers.js';
 
 class Service {
   async getAll(city, cinema, date) {
     const allCinemas = 'All cinemas';
-    const wholeCalender = 'Whole calender'
+    const wholeCalender = 'Whole calender';
 
-    let movieSessions = await MovieSession.aggregate([
-      {
-        $lookup: {
-          from: "cinemas",
-          localField: "hall_id",
-          foreignField: "hall_id",
-          as: "hall"
-        }
-      },
-      {
-        $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ["$hall", 0] }, "$$ROOT"] } }
-      },
-      { $project: { hall: 0 } },
-      {
-        $lookup: {
-          from: "movies",
-          localField: "movie_id",
-          foreignField: "_id",
-          as: "movie"
-        }
-      },
-      {
-        $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ["$movie", 0] }, "$$ROOT"] } }
-      },
-      { $project: { movie: 0 } },
-      {
-        $lookup: {
-          from: "cities",
-          localField: "city_id",
-          foreignField: "_id",
-          as: "city"
-        }
-      },
-      {
-        $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ["$city", 0] }, "$$ROOT"] } }
-      },
-      { $project: { city: 0 } }
-    ])
+    let movieSessions = await MovieSession.aggregate(movieSessionSample());
 
     function mapToScheduleObject(movieSessionData) {
       let session = {
@@ -130,6 +95,58 @@ class Service {
       })
     }
     return filteredSchedule;
+  }
+
+  async getOne(id) {
+    const foundMovie = await Movie.findById(id);
+    let movieSessions = await MovieSession.aggregate(movieSessionSample());
+    let filteredByMovieSessions = movieSessions.filter(elem => elem.movieName === foundMovie.movieName);
+
+    function mapToScheduleObject(movieSessionData) {
+      let session = {
+        "id": movieSessionData._id,
+        "hall_id": movieSessionData.hall_id,
+        "date": movieSessionData.date
+      };
+      let schedule = {
+        "cinemaName": movieSessionData.cinemaName,
+        "cinemaAddress": movieSessionData.cinemaAddress,
+        "cityName": movieSessionData.cityName,
+        "sessions": [session]
+      };
+      let dateSchedule = {
+        "day": new Date(movieSessionData.date).toLocaleDateString(),
+        "schedules": [schedule]
+      };
+      return dateSchedule;
+    }
+
+    function mergeDateSchedules(mergedDateSchedules, dateSchedule) {
+      let existingDateSchedule = mergedDateSchedules.find(item => item.day === dateSchedule.day);
+      if (existingDateSchedule) {
+        dateSchedule.schedules.reduce((mergedSchedules, schedule) => mergeSchedules(mergedSchedules, schedule), existingDateSchedule.schedules);
+      } else {
+        mergedDateSchedules.push(dateSchedule);
+      }
+
+      return mergedDateSchedules;
+    }
+
+    function mergeSchedules(mergedSchedules, schedule) {
+      let existingSchedule = mergedSchedules.find(item => item.cinemaName === schedule.cinemaName);
+      if (existingSchedule) {
+        schedule.sessions.forEach(session => {
+          if (!existingSchedule.sessions.includes(session)) {
+            existingSchedule.sessions.push(session);
+          }
+        })
+      } else {
+        mergedSchedules.push(schedule);
+      }
+      return mergedSchedules;
+    }
+    let movieSchedule = filteredByMovieSessions.map(mapToScheduleObject).reduce(mergeDateSchedules, []);
+    return movieSchedule
   }
 }
 
