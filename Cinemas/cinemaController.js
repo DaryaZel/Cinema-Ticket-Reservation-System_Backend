@@ -13,7 +13,8 @@ class Controller {
     }
     async getAll(req, res) {
         try {
-            const cinemas = await Service.getAll();
+            const city = req.query.city;
+            const cinemas = await Service.getAll(city);
             return res.json(cinemas);
         }
         catch (error) {
