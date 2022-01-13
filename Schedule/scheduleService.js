@@ -2,11 +2,11 @@ import Movie from '../Movies/moviesModel.js';
 import MovieSession from '../MovieSessions/movieSessionModel.js';
 import { movieSessionSample } from './helpers/helpers.js';
 
+const allCinemas = 'All cinemas';
+const wholeCalender = 'Whole calender';
+
 class Service {
   async getAll(city, cinema, date) {
-    const allCinemas = 'All cinemas';
-    const wholeCalender = 'Whole calender';
-
     let movieSessions = await MovieSession.aggregate(movieSessionSample());
 
     function mapToScheduleObject(movieSessionData) {
@@ -97,7 +97,7 @@ class Service {
     return filteredSchedule;
   }
 
-  async getOne(id) {
+  async getOne(id, city, cinema, date) {
     const foundMovie = await Movie.findById(id);
     let movieSessions = await MovieSession.aggregate(movieSessionSample());
     let filteredByMovieSessions = movieSessions.filter(elem => elem.movieName === foundMovie.movieName);
@@ -146,7 +146,28 @@ class Service {
       return mergedSchedules;
     }
     let movieSchedule = filteredByMovieSessions.map(mapToScheduleObject).reduce(mergeDateSchedules, []);
-    return movieSchedule
+    let filteredSchedule = movieSchedule.map((elem) => {
+      let dateSchedule = {
+        "day": elem.day,
+        "schedules": elem.schedules.filter(elem => elem.cityName === city)
+      }
+      return dateSchedule
+    })
+
+    if (date !== wholeCalender) {
+      filteredSchedule = filteredSchedule.filter(elem => elem.day === date)
+    }
+
+    if (cinema !== allCinemas) {
+      filteredSchedule = filteredSchedule.map((elem) => {
+        let dateSchedule = {
+          "day": elem.day,
+          "schedules": elem.schedules.filter(elem => elem.cinemaName === cinema)
+        }
+        return dateSchedule
+      })
+    }
+    return filteredSchedule;
   }
 }
 

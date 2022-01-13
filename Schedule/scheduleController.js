@@ -15,7 +15,10 @@ class Controller {
     }
     async getOne(req, res) {
         try {
-            const movieSchedule = await Service.getOne(req.params.id);
+            const city = req.query.city;
+            const cinema = req.query.cinema;
+            const date = req.query.date;
+            const movieSchedule = await Service.getOne(req.params.id, city, cinema, date);
             return res.json(movieSchedule);
         }
         catch (error) {
