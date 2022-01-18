@@ -5,7 +5,8 @@ const router = express.Router();
 router.get('/', Controller.getAll);
 router.get('/:id', Controller.getOne);
 router.post('/', Controller.create);
-router.put('/', Controller.update);
+router.put('/addSelect', Controller.addSelect);
+router.put('/removeSelect', Controller.removeSelect);
 router.delete('/:id', Controller.delete);
 
 export default router;

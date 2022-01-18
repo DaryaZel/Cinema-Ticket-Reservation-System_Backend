@@ -29,9 +29,23 @@ class Controller {
             return res.status(500).json(error);
         }
     }
-    async update(req, res) {
+    async addSelect(req, res) {
         try {
-            const seat = await Service.update(req.body);
+            const seat = await Service.addSelect(req.body);
+            return res.json(seat);
+        }
+        catch (error) {
+            if (error instanceof RequestError) {
+                return res.status(400).json(error.message);
+            }
+            else {
+                return res.status(500).json(error);
+            }
+        }
+    }
+    async removeSelect(req, res) {
+        try {
+            const seat = await Service.removeSelect(req.body);
             return res.json(seat);
         }
         catch (error) {

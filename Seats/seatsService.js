@@ -14,7 +14,17 @@ class Service {
         const foundSeat = await Seat.findById(id);
         return foundSeat;
     }
-    async update(seat) {
+    async addSelect(seat) {
+        if (!seat._id) {
+            throw new RequestError('Id not specified');
+        }
+        if (seat.isSelected == 'true') {
+            throw new RequestError('Sorry, this seat is already selected by another user');
+        }
+        const updatedSeat = await Seat.findByIdAndUpdate(seat._id, seat, { new: true });
+        return updatedSeat;
+    }
+    async removeSelect(seat) {
         if (!seat._id) {
             throw new RequestError('Id not specified');
         }
