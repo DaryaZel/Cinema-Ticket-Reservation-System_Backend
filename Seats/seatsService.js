@@ -20,9 +20,10 @@ class Service {
         }
         const foundSeat = await Seat.findById(seat._id);
         if (foundSeat.isSelected === true) {
-            throw new RequestError('Sorry, this seat is already selected by another user');
+            throw new RequestError('Sorry, this seat is already selected. Try again in 5 min');
         }
         const updatedSeat = await Seat.findByIdAndUpdate(seat._id, seat, { new: true });
+        setTimeout(async() => { await Seat.findByIdAndUpdate(seat._id, { isSelected: false })}, 50000)
         return updatedSeat;
     }
     async removeSelect(seat) {
