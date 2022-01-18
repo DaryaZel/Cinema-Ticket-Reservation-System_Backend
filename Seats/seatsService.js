@@ -18,7 +18,8 @@ class Service {
         if (!seat._id) {
             throw new RequestError('Id not specified');
         }
-        if (seat.isSelected == 'true') {
+        const foundSeat = await Seat.findById(seat._id);
+        if (foundSeat.isSelected === true) {
             throw new RequestError('Sorry, this seat is already selected by another user');
         }
         const updatedSeat = await Seat.findByIdAndUpdate(seat._id, seat, { new: true });
