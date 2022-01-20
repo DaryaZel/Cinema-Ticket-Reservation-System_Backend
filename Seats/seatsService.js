@@ -22,16 +22,29 @@ class Service {
         if (foundSeat.isSelected === true) {
             throw new RequestError('Sorry, this seat is already selected. Try again in 5 min');
         }
-        const updatedSeat = await Seat.findByIdAndUpdate(seat._id, seat, { new: true });
-        setTimeout(async() => { await Seat.findByIdAndUpdate(seat._id, { isSelected: false })}, 50000)
+        const updatedSeat = await Seat.findByIdAndUpdate(seat._id, { isSelected: true });
+        setTimeout(async () => { await Seat.findByIdAndUpdate(seat._id, { isSelected: false }) }, 50000)
         return updatedSeat;
     }
     async removeSelect(seat) {
         if (!seat._id) {
             throw new RequestError('Id not specified');
         }
-        const updatedSeat = await Seat.findByIdAndUpdate(seat._id, seat, { new: true });
+        const updatedSeat = await Seat.findByIdAndUpdate(seat._id, { isSelected: false });
         return updatedSeat;
+    }
+    async reserve(seats) {
+        seats.forEach(async (seat) => {
+            if (!seat._id) {
+                throw new RequestError('Id not specified');
+            }
+            seat.isSelected = true
+            seat.isReserved = true
+            await Seat.findByIdAndUpdate(seat._id, seat);
+        })
+        const foundSeats = await Seat.find();
+        return foundSeats
+
     }
     async delete(id) {
         const deletedSeat = await Seat.findByIdAndDelete(id);

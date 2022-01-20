@@ -57,6 +57,20 @@ class Controller {
             }
         }
     }
+    async reserve(req, res) {
+        try {
+            const seat = await Service.reserve(req.body);
+            return res.json(seat);
+        }
+        catch (error) {
+            if (error instanceof RequestError) {
+                return res.status(400).json(error.message);
+            }
+            else {
+                return res.status(500).json(error);
+            }
+        }
+    }
     async delete(req, res) {
         try {
             const seat = await Service.delete(req.params.id);
