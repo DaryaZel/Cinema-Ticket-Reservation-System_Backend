@@ -1,4 +1,5 @@
 import CinemaHall from './cinemaHallModel.js';
+import MovieSession from '../MovieSessions/movieSessionModel.js'
 import Seat from '../Seats/seatsModel.js';
 
 class CinemaHallService {
@@ -7,9 +8,9 @@ class CinemaHallService {
         const createdCinemaHall = await CinemaHall.create(cinemaHall);
         return createdCinemaHall;
     }
-
-    async getHall(id) { 
-        const foundCinemaHall = await CinemaHall.findById(id);
+    async getCinemaHallWithSeats(id) {
+        const foundMovieSession = await MovieSession.findById(id)
+        const foundCinemaHall = foundMovieSession.hall_id;
         const seats = await Seat.find({ hall_id: foundCinemaHall._id }).sort({ rowNumber: 1, number: 1 });
         return { foundCinemaHall, seats };
     }
