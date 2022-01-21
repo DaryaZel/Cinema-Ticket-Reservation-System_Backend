@@ -10,7 +10,8 @@ class CinemaHallService {
     }
     async getCinemaHallWithSeats(id) {
         const foundMovieSession = await MovieSession.findById(id)
-        const foundCinemaHall = foundMovieSession.hall_id;
+        const foundCinemaHallId = foundMovieSession.hall_id;
+        const foundCinemaHall = await CinemaHall.findById(foundCinemaHallId);
         const seats = await Seat.find({ hall_id: foundCinemaHall._id }).sort({ rowNumber: 1, number: 1 });
         return { foundCinemaHall, seats };
     }
