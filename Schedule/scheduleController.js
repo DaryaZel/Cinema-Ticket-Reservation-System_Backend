@@ -6,7 +6,8 @@ class Controller {
             const city = req.query.city;
             const cinema = req.query.cinema;
             const date = req.query.date;
-            const schedule = await Service.getAll(city, cinema, date);
+            const timezone = req.query.timeZone;
+            const schedule = await Service.getAll(city, cinema, date, timezone);
             return res.json(schedule);
         }
         catch (error) {
