@@ -13,7 +13,7 @@ class Service {
       let session = {
         "id": movieSessionData._id,
         "hall_id": movieSessionData.hall_id,
-        "date": movieSessionData.date.toLocaleString({ timeZone: timezone })
+        "date": movieSessionData.date
       };
       let movie = {
         "id": movieSessionData.movie_id,
