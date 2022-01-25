@@ -28,7 +28,7 @@ class Service {
         "movies": [movie]
       };
       let dateSchedule = {
-        "day": new Date(movieSessionData.date).toLocaleDateString(),
+        "day": movieSessionData.date.toLocaleDateString(),
         "schedules": [schedule]
       };
 
@@ -82,7 +82,7 @@ class Service {
     })
 
     if (date !== wholeCalender) {
-      filteredSchedule = filteredSchedule.filter(elem => elem.day === date)
+      filteredSchedule = filteredSchedule.filter(elem => elem.day === new Date(date).toLocaleDateString())
     }
 
     if (cinema !== allCinemas) {
@@ -115,14 +115,14 @@ class Service {
         "sessions": [session]
       };
       let dateSchedule = {
-        "day": new Date(movieSessionData.date).toLocaleDateString(),
+        "day": movieSessionData.date.toLocaleDateString(),
         "schedules": [schedule]
       };
       return dateSchedule;
     }
 
     function mergeDateSchedules(mergedDateSchedules, dateSchedule) {
-      let existingDateSchedule = mergedDateSchedules.find(item => item.day === dateSchedule.day);
+      let existingDateSchedule = mergedDateSchedules.find(item => item.day === new Date (dateSchedule.day).toLocaleDateString());
       if (existingDateSchedule) {
         dateSchedule.schedules.reduce((mergedSchedules, schedule) => mergeSchedules(mergedSchedules, schedule), existingDateSchedule.schedules);
       } else {
@@ -155,7 +155,7 @@ class Service {
     })
 
     if (date !== wholeCalender) {
-      filteredSchedule = filteredSchedule.filter(elem => elem.day === date)
+      filteredSchedule = filteredSchedule.filter(elem => elem.day === new Date (date).toLocaleDateString())
     }
 
     if (cinema !== allCinemas) {

@@ -6,9 +6,16 @@ class Service {
         const createdMovieSession = await MovieSession.create(movieSession);
         return createdMovieSession;
     }
-    async getAll() {
-        const foundMovieSession = await MovieSession.find();
-        return foundMovieSession;
+    async getSessionsCalenderArray() {
+        const daysArray = await MovieSession.aggregate([
+            {
+                $group: {
+                    _id: null,
+                    days: { $addToSet: { $dateToString: { date: "$date", format: "%m/%d/%Y", timezone: 'Europe/Moscow' } } }
+                }
+            }
+        ])
+        return daysArray[0].days.sort();
     }
     async getOne(id) {
         const foundMovieSession = await MovieSession.findById(id);

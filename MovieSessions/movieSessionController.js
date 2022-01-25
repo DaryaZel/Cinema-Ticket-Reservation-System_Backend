@@ -11,9 +11,9 @@ class Controller {
             return res.status(500).json(error);
         }
     }
-    async getAll(req, res) {
+    async getSessionsCalenderArray(req, res) {
         try {
-            const movieSessions = await Service.getAll();
+            const movieSessions = await Service.getSessionsCalenderArray();
             return res.json(movieSessions);
         }
         catch (error) {
