@@ -115,14 +115,14 @@ class Service {
         "sessions": [session]
       };
       let dateSchedule = {
-        "day": movieSessionData.date.toLocaleDateString({ timeZone: timezone }),
+        "day": movieSessionData.date.toLocaleDateString('en-US', { timeZone: timezone }),
         "schedules": [schedule]
       };
       return dateSchedule;
     }
 
     function mergeDateSchedules(mergedDateSchedules, dateSchedule) {
-      let existingDateSchedule = mergedDateSchedules.find(item => item.day === new Date (dateSchedule.day).toLocaleDateString({ timeZone: timezone }));
+      let existingDateSchedule = mergedDateSchedules.find(item => item.day === new Date (dateSchedule.day).toLocaleDateString('en-US', { timeZone: timezone }));
       if (existingDateSchedule) {
         dateSchedule.schedules.reduce((mergedSchedules, schedule) => mergeSchedules(mergedSchedules, schedule), existingDateSchedule.schedules);
       } else {
