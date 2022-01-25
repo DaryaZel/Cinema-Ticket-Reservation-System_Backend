@@ -28,7 +28,7 @@ class Service {
         "movies": [movie]
       };
       let dateSchedule = {
-        "day": new Date(movieSessionData.date).toLocaleDateString({ timeZone: timezone }),
+        "day": new Date(movieSessionData.date).toLocaleDateString('en-US', { timeZone: timezone }),
         "schedules": [schedule]
       };
 
@@ -82,7 +82,7 @@ class Service {
     })
 
     if (date !== wholeCalender) {
-      filteredSchedule = filteredSchedule.filter(elem => elem.day === new Date(date).toLocaleDateString({ timeZone: timezone }))
+      filteredSchedule = filteredSchedule.filter(elem => elem.day === new Date(date).toLocaleDateString('en-US', { timeZone: timezone }))
     }
 
     if (cinema !== allCinemas) {
