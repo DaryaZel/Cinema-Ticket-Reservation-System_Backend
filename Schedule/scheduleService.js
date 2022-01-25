@@ -28,7 +28,7 @@ class Service {
         "movies": [movie]
       };
       let dateSchedule = {
-        "day": movieSessionData.date.toLocaleDateString({ timeZone: timezone }),
+        "day": new Date(movieSessionData.date).toLocaleDateString({ timeZone: timezone }),
         "schedules": [schedule]
       };
 
