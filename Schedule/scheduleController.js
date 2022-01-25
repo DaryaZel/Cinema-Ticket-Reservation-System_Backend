@@ -18,7 +18,8 @@ class Controller {
             const city = req.query.city;
             const cinema = req.query.cinema;
             const date = req.query.date;
-            const movieSchedule = await Service.getOne(req.params.id, city, cinema, date);
+            const timezone = req.query.timeZone;
+            const movieSchedule = await Service.getOne(req.params.id, city, cinema, date, timezone);
             return res.json(movieSchedule);
         }
         catch (error) {

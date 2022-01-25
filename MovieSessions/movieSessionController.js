@@ -13,7 +13,8 @@ class Controller {
     }
     async getSessionsCalenderArray(req, res) {
         try {
-            const movieSessions = await Service.getSessionsCalenderArray();
+            const timeZoneParam = req.query.timeZone;
+            const movieSessions = await Service.getSessionsCalenderArray(timeZoneParam);
             return res.json(movieSessions);
         }
         catch (error) {

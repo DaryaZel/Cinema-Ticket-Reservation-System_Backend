@@ -6,7 +6,7 @@ const allCinemas = 'All cinemas';
 const wholeCalender = 'Whole calender';
 
 class Service {
-  async getAll(city, cinema, date) {
+  async getAll(city, cinema, date, timezone) {
     let movieSessions = await MovieSession.aggregate(movieSessionSample());
 
     function mapToScheduleObject(movieSessionData) {
@@ -28,7 +28,7 @@ class Service {
         "movies": [movie]
       };
       let dateSchedule = {
-        "day": movieSessionData.date.toLocaleDateString(),
+        "day": movieSessionData.date.toLocaleDateString({ timeZone: timezone }),
         "schedules": [schedule]
       };
 
@@ -82,7 +82,7 @@ class Service {
     })
 
     if (date !== wholeCalender) {
-      filteredSchedule = filteredSchedule.filter(elem => elem.day === new Date(date).toLocaleDateString())
+      filteredSchedule = filteredSchedule.filter(elem => elem.day === new Date(date).toLocaleDateString({ timeZone: timezone }))
     }
 
     if (cinema !== allCinemas) {
@@ -97,7 +97,7 @@ class Service {
     return filteredSchedule;
   }
 
-  async getOne(id, city, cinema, date) {
+  async getOne(id, city, cinema, date, timezone) {
     const foundMovie = await Movie.findById(id);
     let movieSessions = await MovieSession.aggregate(movieSessionSample());
     let filteredByMovieSessions = movieSessions.filter(elem => elem.movieName === foundMovie.movieName);
@@ -115,14 +115,14 @@ class Service {
         "sessions": [session]
       };
       let dateSchedule = {
-        "day": movieSessionData.date.toLocaleDateString(),
+        "day": movieSessionData.date.toLocaleDateString({ timeZone: timezone }),
         "schedules": [schedule]
       };
       return dateSchedule;
     }
 
     function mergeDateSchedules(mergedDateSchedules, dateSchedule) {
-      let existingDateSchedule = mergedDateSchedules.find(item => item.day === new Date (dateSchedule.day).toLocaleDateString());
+      let existingDateSchedule = mergedDateSchedules.find(item => item.day === new Date (dateSchedule.day).toLocaleDateString({ timeZone: timezone }));
       if (existingDateSchedule) {
         dateSchedule.schedules.reduce((mergedSchedules, schedule) => mergeSchedules(mergedSchedules, schedule), existingDateSchedule.schedules);
       } else {

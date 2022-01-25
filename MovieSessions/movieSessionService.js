@@ -6,12 +6,12 @@ class Service {
         const createdMovieSession = await MovieSession.create(movieSession);
         return createdMovieSession;
     }
-    async getSessionsCalenderArray() {
+    async getSessionsCalenderArray(timeZone) {
         const daysArray = await MovieSession.aggregate([
             {
                 $group: {
                     _id: null,
-                    days: { $addToSet: { $dateToString: { date: "$date", format: "%m/%d/%Y", timezone: 'Europe/Moscow' } } }
+                    days: { $addToSet: { $dateToString: { date: "$date", format: "%m/%d/%Y", timezone: timeZone } } }
                 }
             }
         ])
