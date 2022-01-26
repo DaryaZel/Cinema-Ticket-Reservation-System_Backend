@@ -1,7 +1,7 @@
 import express from 'express';
 import Controller from './authorizationController.js';
 import { check } from 'express-validator';
-import { roleMiddleware } from './middleware/roleMiddleware.js';
+import { checkUserAccess } from './middleware/checkUserAccessMiddleware.js';
 
 const router = express.Router();
 router.post('/signup', [
@@ -10,6 +10,6 @@ router.post('/signup', [
 ], Controller.signup);
 router.post('/login', Controller.login);
 router.get('/roles', Controller.makeRoles);
-router.get('/users', roleMiddleware(['Admin']), Controller.getUsers);
+router.get('/users', checkUserAccess(['Admin']), Controller.getUsers);
 
 export default router;

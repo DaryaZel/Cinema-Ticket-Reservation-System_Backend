@@ -3,26 +3,27 @@ import { secret } from '../config.js';
 import { ForbiddenError } from '../../Errors/ForbiddenError.js';
 import { AppError } from '../../Errors/AppError.js';
 
-export function roleMiddleware(roles) {
+export function checkUserAccess(roles) {
     return function (req, res, next) {
         if (req.method === "OPTIONS") {
-            next()
+            next();
         }
         try {
-            const token = req.headers.authorization.split(' ')[1]
+            const token = req.headers.authorization.split(' ')[1];
             if (!token) {
                 throw new ForbiddenError('User is not authorized');
             }
-            const { roles: userRoles } = jwt.verify(token, secret.secretKey)
-            let hasRole = false
-            userRoles.forEach(role => {
-                if (roles.includes(role)) {
-                    hasRole = true
-                }
-            })
-            if (!hasRole) {
+
+            if (roles.length !== 0) {
+                const { userRoles } = jwt.verify(token, secret.secretKey);
+
+                let hasRole = userRoles.filter(role => roles.includes(role.value)).length !== 0;
+
+                if (!hasRole) {
                     throw new ForbiddenError('You do not have an access');
                 }
+            }
+            
             next();
         } catch (error) {
             if (error instanceof AppError) {

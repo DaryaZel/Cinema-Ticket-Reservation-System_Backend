@@ -5,10 +5,10 @@ import { validationResult } from 'express-validator';
 import { ValidationError } from '../Errors/ValidationError.js';
 import { AppError} from '../Errors/AppError.js';
 
-const generateAccessToken = (id, roles) => {
+const generateAccessToken = (id, userRoles) => {
     const payload = {
         id,
-        roles
+        userRoles
     }
     return jwt.sign(payload, secret.secretKey, { expiresIn: '24h' })
 }
