@@ -39,7 +39,7 @@ class Service {
         if (!candidate) {
             throw new AuthenticationError('User does not exist');
         }
-        const validPassword = bcrypt.compareSync(password, candidate.password);
+        const validPassword = await bcrypt.compare(password, candidate.password);
         if (!validPassword) {
             throw new AuthenticationError('Password is wrong');
         };
