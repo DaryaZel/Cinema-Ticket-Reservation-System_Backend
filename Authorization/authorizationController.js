@@ -16,18 +16,17 @@ const generateAccessToken = (id, roles) => {
 class Controller {
     async signup(req, res) {
         try {
-            const validationPoints = 2;
-            const errors = validationResult(req);
-            const errorsArray = errors.errors
-            if (!errors.isEmpty()) {
-                if (errorsArray.length === validationPoints) {
-                    throw new ValidationError("Fill in all fields, password must be at least 4 and no more than 10 symbols");
-                }
-                else if (errorsArray[0].param === 'username') {
+            const validations = validationResult(req);
+            const errorsArray = validations.errors;
+            if (errorsArray.length!==0) {
+                if (errorsArray.length===1&&errorsArray[0].param === 'username') {
                     throw new ValidationError("Fill in username field");
                 }
-                else if (errorsArray[0].param === 'password') {
+                else if (errorsArray.length===1&&errorsArray[0].param === 'password') {
                     throw new ValidationError("Fill in password field, password must be at least 4 and no more than 10 symbols");
+                }
+                else{
+                    throw new ValidationError("Fill in all fields, password must be at least 4 and no more than 10 symbols");
                 }
             }
             const user = await Service.signup(req.body);

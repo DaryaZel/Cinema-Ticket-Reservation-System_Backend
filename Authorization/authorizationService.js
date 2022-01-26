@@ -7,9 +7,13 @@ import { RegistrationError } from '../Errors/RegistrationError.js';
 class Service {
     async signup(user) {
         const { username, email, password } = user;
-        const candidate = await User.findOne({ username });
-        if (candidate) {
+        const candidateFindByName = await User.findOne({ username });
+        if (candidateFindByName) {
             throw new RegistrationError('User already exists');
+        }
+        const candidateFindByEmail = await User.findOne({ email });
+        if (candidateFindByEmail) {
+            throw new RegistrationError('Email already exists');
         }
         const userRole = await Role.findOne({ value: 'User' });
         const hashPassword = bcrypt.hashSync(password, 7);
