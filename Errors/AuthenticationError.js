@@ -1,6 +1,7 @@
-export class AuthenticationError extends Error {
+import { AppError } from "./AppError.js";
+
+export class AuthenticationError extends AppError {
     constructor(message) {
-        super(message);
-        this.name = this.constructor.name;
+        super(message, 400);
     }
 }

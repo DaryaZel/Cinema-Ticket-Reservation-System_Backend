@@ -3,8 +3,7 @@ import jwt from 'jsonwebtoken';
 import { secret } from './config.js';
 import { validationResult } from 'express-validator';
 import { ValidationError } from '../Errors/ValidationError.js';
-import { AuthenticationError } from '../Errors/AuthenticationError.js';
-import { RegistrationError } from '../Errors/RegistrationError.js';
+import { AppError} from '../Errors/AppError.js';
 
 const generateAccessToken = (id, roles) => {
     const payload = {
@@ -35,11 +34,8 @@ class Controller {
             return res.json(user);
         }
         catch (error) {
-            if (error instanceof ValidationError) {
-                return res.status(400).json(error.message);
-            }
-            else if (error instanceof RegistrationError) {
-                return res.status(400).json(error.message);
+            if (error instanceof AppError) {
+                return res.status(error.statusCode).json(error.message);
             }
             else {
                 return res.status(500).json(error);
@@ -53,8 +49,8 @@ class Controller {
             return res.json(token);
         }
         catch (error) {
-            if (error instanceof AuthenticationError) {
-                return res.status(400).json(error.message);
+            if (error instanceof AppError) {
+                return res.status(error.statusCode).json(error.message);
             }
             else {
                 return res.status(500).json(error);

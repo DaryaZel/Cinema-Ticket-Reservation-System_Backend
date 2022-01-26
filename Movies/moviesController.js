@@ -1,5 +1,5 @@
 import Service from './moviesService.js';
-import { RequestError } from '../Errors/RequestError.js';
+import { AppError } from '../Errors/AppError.js';
 
 class Controller {
     async create(req, res) {
@@ -35,8 +35,8 @@ class Controller {
             return res.json(movie);
         }
         catch (error) {
-            if (error instanceof RequestError) {
-                return res.status(400).json(error.message);
+            if (error instanceof AppError) {
+                return res.status(error.statusCode).json(error.message);
             }
             else {
                 return res.status(500).json(error);

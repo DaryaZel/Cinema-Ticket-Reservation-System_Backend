@@ -1,7 +1,7 @@
 import { AppError } from "./AppError.js";
 
-export class ValidationError extends AppError {
+export class ForbiddenError extends AppError {
     constructor(message) {
-        super(message, 400);
+        super(message, 403);
     }
 }

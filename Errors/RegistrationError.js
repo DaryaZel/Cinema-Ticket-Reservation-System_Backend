@@ -1,6 +1,7 @@
-export class RegistrationError extends Error {
+import { AppError } from "./AppError.js";
+
+export class RegistrationError extends AppError {
     constructor(message) {
-        super(message);
-        this.name = this.constructor.name;
+        super(message, 400);
     }
 }
