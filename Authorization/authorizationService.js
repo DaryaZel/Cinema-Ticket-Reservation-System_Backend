@@ -6,19 +6,32 @@ import { RegistrationError } from '../Errors/RegistrationError.js';
 
 class Service {
     async signup(user) {
-        const { username, password } = user;
+        const { username, email, password } = user;
         const candidate = await User.findOne({ username });
         if (candidate) {
             throw new RegistrationError('User already exists');
         }
+        const userRole = await Role.findOne({ value: 'User' });
         const hashPassword = bcrypt.hashSync(password, 7);
-        const userRole = await Role.findOne({ value: 'Admin' });
-        const newUser = await User.create({ username, password: hashPassword, roles: [userRole.value] });
+        const newUser = await User.create({ username, password: hashPassword, email, roles: [userRole._id] });
         return newUser;
     }
     async login(user) {
         const { username, password } = user;
-        const candidate = await User.findOne({ username });
+        const candidateArray = await User.aggregate([
+            { $match: { username: username } },
+            {
+                $lookup: {
+                    from: "roles",
+                    localField: "roles",
+                    foreignField: "_id",
+                    as: "roles"
+                }
+            },
+            {
+                $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ["$roles", 0] }, "$$ROOT"] } }
+            }]);
+        const candidate = candidateArray[0];
         if (!candidate) {
             throw new AuthenticationError('User does not exist');
         }
