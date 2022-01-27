@@ -1,5 +1,4 @@
 import jwt from 'jsonwebtoken';
-import { secret } from '../config.js';
 import { ForbiddenError } from '../../Errors/ForbiddenError.js';
 import { AppError } from '../../Errors/AppError.js';
 
@@ -15,7 +14,7 @@ export function checkUserAccess(roles) {
             }
 
             if (roles.length !== 0) {
-                const { userRoles } = jwt.verify(token, secret.secretKey);
+                const { userRoles } = jwt.verify(token, process.env.SECRET_KEY_RANDOM);
 
                 let hasRole = userRoles.filter(role => roles.includes(role.value)).length !== 0;
 
