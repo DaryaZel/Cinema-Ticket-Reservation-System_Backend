@@ -11,6 +11,6 @@ router.post('/signup', [
 ], Controller.signup);
 router.post('/login', Controller.login);
 router.get('/roles', Controller.makeRoles);
-router.get('/users', checkUserAccess(['Admin']), Controller.getUsers);
+router.get('/users', checkUserAccess([['Admin', 'User']]), Controller.getUser);
 
 export default router;

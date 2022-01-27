@@ -37,6 +37,9 @@ class Controller {
                 else if (errorsArray.length === 1 && errorsArray[0].param === 'password') {
                     throw new ValidationError("Fill in password field, password must be at least 4 and no more than 10 symbols");
                 }
+                else if (errorsArray.length === 1 && errorsArray[0].param === 'email') {
+                    throw new ValidationError("Fill in email field");
+                }
                 else {
                     throw new ValidationError("Fill in all fields, password must be at least 4 and no more than 10 symbols");
                 }
