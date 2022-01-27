@@ -2,10 +2,7 @@ import express from 'express';
 import Controller from './moviesController.js';
 
 const router = express.Router();
-router.get('/', Controller.getAll);
-router.get('/:id', Controller.getOne);
-router.post('/', Controller.create);
-router.put('/', Controller.update);
-router.delete('/:id', Controller.delete);
+router.route('/').get(Controller.getAll).post(Controller.create).put(Controller.update);
+router.route('/:id').get(Controller.getOne).delete(Controller.delete);
 
 export default router;
