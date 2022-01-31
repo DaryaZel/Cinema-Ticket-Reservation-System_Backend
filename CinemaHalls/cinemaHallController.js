@@ -23,14 +23,14 @@ class CinemaHallController {
         }
     }
 
-    async getHall(req, res) {
+    async getCinemaHallWithSeats(req, res) {
         try {
-            const cinemaHallId = req.params.id;
-            if (!cinemaHallId) {
-                throw new BadRequestParametersError('Cinema hall Id not specified');
+            const movieSessionId = req.params.id;
+            if (!movieSessionId) {
+                throw new BadRequestParametersError('Movie session Id not specified');
             }
-            const cinemaHall = await CinemaHallService.getOne(cinemaHallId);
-            return res.json(cinemaHall);
+            const cinemaHallWithSeats = await CinemaHallService.getCinemaHallWithSeats(movieSessionId);
+            return res.json(cinemaHallWithSeats);
         }
         catch (error) {
             if (error instanceof AppError) {
