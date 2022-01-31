@@ -1,29 +1,21 @@
 import City from './cityModel.js';
-import { RequestError } from '../Errors/RequestError.js';
 
-class Service {
-    async create(city) {
+class CityService {
+
+    async createCity(city) {
         const createdCity = await City.create(city);
         return createdCity;
     }
-    async getAll() {
+
+    async getAllCities() {
         const foundCity = await City.find();
         return foundCity;
     }
-    async getOne(id) {
+
+    async getCity(id) {
         const foundCity = await City.findById(id);
         return foundCity;
     }
-    async update(city) {
-        if (!city._id) {
-            throw new RequestError('Id not specified');
-        }
-        const updatedCity = await City.findByIdAndUpdate(city._id, city, { new: true });
-        return updatedCity;
-    }
-    async delete(id) {
-        const deletedCity = await City.findByIdAndDelete(id);
-        return deletedCity;
-    }
 }
-export default new Service();
+
+export default new CityService();
