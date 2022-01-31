@@ -1,41 +1,46 @@
 import { processFileMiddleware } from "./middleware/middleware.js";
-import { format } from "util";
 import { Storage } from "@google-cloud/storage";
+import { AppError } from '../Errors/AppError.js';
+import { BadRequestParametersError } from '../Errors/BadRequestParametersError.js';
 
 const storage = new Storage({ keyFilename: "google-cloud-key.json" });
 const bucket = storage.bucket("cinema_images");
 
-class Controller {
+class ImagesController {
+
   async upload(req, res) {
     try {
       await processFileMiddleware(req, res);
 
       if (!req.file) {
-        return res.status(400).json({ message: "Please upload a file!" });
+        throw new BadRequestParametersError('Please upload a file');
       }
 
-      const blob = bucket.file(req.file.originalname);
-      const blobStream = blob.createWriteStream({
+      const file = bucket.file(req.file.originalname);
+      const fileStream = file.createWriteStream({
         resumable: false,
       });
 
-      blobStream.on("error", (err) => {
-        res.status(500).json(error);
+      fileStream.on("error", (err) => {
+        res.status(500).json(err);
       });
 
-      blobStream.on("finish", async () => {
-        const publicUrl = format(
-          `https://storage.googleapis.com/${bucket.name}/${blob.name}`
-        );
+      fileStream.on("finish", () => {
+        const publicUrl = `https://storage.googleapis.com/${bucket.name}/${file.name}`;
         res.json(publicUrl);
       });
 
-      blobStream.end(req.file.buffer);
+      fileStream.end(req.file.buffer);
     }
     catch (error) {
-      return res.status(500).json(error);
+      if (error instanceof AppError) {
+        return res.status(error.statusCode).json(error.message);
+    }
+    else {
+        return res.status(500).json(error);
+    }
     }
   }
 }
 
-export default new Controller();
+export default new ImagesController();
