@@ -1,56 +1,47 @@
-import Service from './cinemaHallService.js';
-import { RequestError } from '../Errors/RequestError.js';
+import CinemaHallService from './cinemaHallService.js';
+import { BadRequestParametersError } from '../Errors/BadRequestParametersError.js';
+import { AppError } from '../Errors/AppError.js';
+import { isEmpty } from '../util/isEmptyObj.js';
 
-class Controller {
-    async create(req, res) {
+class CinemaHallController {
+
+    async createHall(req, res) {
         try {
-            const cinemaHall = await Service.create(req.body);
+            if (isEmpty(req.body)) {
+                throw new BadRequestParametersError('Request body is empty');
+            }
+            const cinemaHall = await CinemaHallService.createHall(req.body);
             return res.json(cinemaHall);
         }
         catch (error) {
-            return res.status(500).json(error);
-        }
-    }
-    async getAll(req, res) {
-        try {
-            const cinemaHalls = await Service.getAll();
-            return res.json(cinemaHalls);
-        }
-        catch (error) {
-            return res.status(500).json(error);
-        }
-    }
-    async getOne(req, res) {
-        try {
-            const cinemaHall = await Service.getOne(req.params.id);
-            return res.json(cinemaHall);
-        }
-        catch (error) {
-            return res.status(500).json(error);
-        }
-    }
-    async update(req, res) {
-        try {
-            const cinemaHall = await Service.update(req.body);
-            return res.json(cinemaHall);
-        }
-        catch (error) {
-            if (error instanceof RequestError) {
-                return res.status(400).json(error.message);
+            if (error instanceof AppError) {
+                return res.status(error.statusCode).json(error.message);
             }
             else {
                 return res.status(500).json(error);
             }
         }
     }
-    async delete(req, res) {
+
+    async getHall(req, res) {
         try {
-            const cinemaHall = await Service.delete(req.params.id);
+            const cinemaHallId = req.params.id;
+            if (!cinemaHallId) {
+                throw new BadRequestParametersError('Cinema hall Id not specified');
+            }
+            const cinemaHall = await CinemaHallService.getOne(cinemaHallId);
             return res.json(cinemaHall);
         }
         catch (error) {
-            return res.status(500).json(error);
+            if (error instanceof AppError) {
+                return res.status(error.statusCode).json(error.message);
+            }
+            else {
+                return res.status(500).json(error);
+            }
         }
     }
+
 }
-export default new Controller();
+
+export default new CinemaHallController();
