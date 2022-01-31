@@ -1,84 +1,71 @@
-import Service from './seatsService.js';
-import { RequestError } from '../Errors/RequestError.js';
+import SeatService from './seatsService.js';
+import { BadRequestParametersError } from '../Errors/BadRequestParametersError.js';
+import { AppError } from '../Errors/AppError.js';
+import { isEmpty } from '../util/isEmptyObj.js';
 
-class Controller {
-    async create(req, res) {
+class SeatController {
+    async createSeat(req, res) {
         try {
-            const seat = await Service.create(req.body);
+            if (isEmpty(req.body)) {
+                throw new BadRequestParametersError('Request body is empty');
+            }
+            const seat = await SeatService.createSeat(req.body);
             return res.json(seat);
         }
         catch (error) {
             return res.status(500).json(error);
         }
     }
-    async getAll(req, res) {
+    async makeSelectTrue(req, res) {
         try {
-            const seats = await Service.getAll();
-            return res.json(seats);
-        }
-        catch (error) {
-            return res.status(500).json(error);
-        }
-    }
-    async getOne(req, res) {
-        try {
-            const seat = await Service.getOne(req.params.id);
+            if (isEmpty(req.body)) {
+                throw new BadRequestParametersError('Request body is empty');
+            }
+            const seat = await SeatService.makeSelectTrue(req.body);
             return res.json(seat);
         }
         catch (error) {
-            return res.status(500).json(error);
-        }
-    }
-    async addSelect(req, res) {
-        try {
-            const seat = await Service.addSelect(req.body);
-            return res.json(seat);
-        }
-        catch (error) {
-            if (error instanceof RequestError) {
-                return res.status(400).json(error.message);
+            if (error instanceof AppError) {
+                return res.status(error.statusCode).json(error.message);
             }
             else {
                 return res.status(500).json(error);
             }
         }
     }
-    async removeSelect(req, res) {
+    async makeSelectFalse(req, res) {
         try {
-            const seat = await Service.removeSelect(req.body);
+            if (isEmpty(req.body)) {
+                throw new BadRequestParametersError('Request body is empty');
+            }
+            const seat = await SeatService.makeSelectFalse(req.body);
             return res.json(seat);
         }
         catch (error) {
-            if (error instanceof RequestError) {
-                return res.status(400).json(error.message);
+            if (error instanceof AppError) {
+                return res.status(error.statusCode).json(error.message);
             }
             else {
                 return res.status(500).json(error);
             }
         }
     }
-    async reserve(req, res) {
+    async reserveSeat(req, res) {
         try {
-            const seat = await Service.reserve(req.body);
+            if (isEmpty(req.body)) {
+                throw new BadRequestParametersError('Request body is empty');
+            }
+            const seat = await SeatService.reserveSeat(req.body);
             return res.json(seat);
         }
         catch (error) {
-            if (error instanceof RequestError) {
-                return res.status(400).json(error.message);
+            if (error instanceof AppError) {
+                return res.status(error.statusCode).json(error.message);
             }
             else {
                 return res.status(500).json(error);
             }
-        }
-    }
-    async delete(req, res) {
-        try {
-            const seat = await Service.delete(req.params.id);
-            return res.json(seat);
-        }
-        catch (error) {
-            return res.status(500).json(error);
         }
     }
 }
-export default new Controller();
+export default new SeatController();
