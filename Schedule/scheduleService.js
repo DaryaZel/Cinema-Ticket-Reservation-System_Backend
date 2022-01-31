@@ -1,12 +1,10 @@
 import Movie from '../Movies/moviesModel.js';
 import MovieSession from '../MovieSessions/movieSessionModel.js';
-import { movieSessionSample } from './helpers/helpers.js';
+import { movieSessionSample } from './helpers/ScheduleAggregationHelpers.js';
 
-const allCinemas = 'All cinemas';
-const wholeCalender = 'Whole calender';
+class ScheduleService {
 
-class Service {
-  async getAll(city, cinema, date, timezone) {
+  async getScheduleForAllMovies(params) {
     let movieSessions = await MovieSession.aggregate(movieSessionSample());
 
     function mapToScheduleObject(movieSessionData) {
@@ -28,7 +26,7 @@ class Service {
         "movies": [movie]
       };
       let dateSchedule = {
-        "day": new Date(movieSessionData.date).toLocaleDateString('en-US', { timeZone: timezone }),
+        "day": new Date(movieSessionData.date).toLocaleDateString('en-US', { timeZone: params.timezone }),
         "schedules": [schedule]
       };
 
@@ -76,29 +74,30 @@ class Service {
     let filteredSchedule = schedule.map((elem) => {
       let dateSchedule = {
         "day": elem.day,
-        "schedules": elem.schedules.filter(elem => elem.cityName === city)
+        "schedules": elem.schedules.filter(elem => elem.cityName === params.city)
       }
       return dateSchedule
     })
 
-    if (date !== wholeCalender) {
-      filteredSchedule = filteredSchedule.filter(elem => elem.day === new Date(date).toLocaleDateString('en-US', { timeZone: timezone }))
+    if (params.date) {
+      filteredSchedule = filteredSchedule.filter(elem => elem.day === new Date(params.date).toLocaleDateString('en-US', { timeZone: params.timezone }))
     }
 
-    if (cinema !== allCinemas) {
+    if (params.cinema) {
       filteredSchedule = filteredSchedule.map((elem) => {
         let dateSchedule = {
           "day": elem.day,
-          "schedules": elem.schedules.filter(elem => elem.cinemaName === cinema)
+          "schedules": elem.schedules.filter(elem => elem.cinemaName === params.cinema)
         }
         return dateSchedule
       })
     }
+
     return filteredSchedule;
   }
 
-  async getOne(id, city, cinema, date, timezone) {
-    const foundMovie = await Movie.findById(id);
+  async getScheduleForMovie(params) {
+    const foundMovie = await Movie.findById(params.movieId);
     let movieSessions = await MovieSession.aggregate(movieSessionSample());
     let filteredByMovieSessions = movieSessions.filter(elem => elem.movieName === foundMovie.movieName);
 
@@ -106,7 +105,7 @@ class Service {
       let session = {
         "id": movieSessionData._id,
         "hall_id": movieSessionData.hall_id,
-        "date": movieSessionData.date.toLocaleString({ timeZone: timezone })
+        "date": movieSessionData.date
       };
       let schedule = {
         "cinemaName": movieSessionData.cinemaName,
@@ -115,14 +114,14 @@ class Service {
         "sessions": [session]
       };
       let dateSchedule = {
-        "day": movieSessionData.date.toLocaleDateString('en-US', { timeZone: timezone }),
+        "day": movieSessionData.date.toLocaleDateString('en-US', { timeZone: params.timezone }),
         "schedules": [schedule]
       };
       return dateSchedule;
     }
 
     function mergeDateSchedules(mergedDateSchedules, dateSchedule) {
-      let existingDateSchedule = mergedDateSchedules.find(item => item.day === new Date (dateSchedule.day).toLocaleDateString('en-US', { timeZone: timezone }));
+      let existingDateSchedule = mergedDateSchedules.find(item => item.day === new Date(dateSchedule.day).toLocaleDateString('en-US', { timeZone: params.timezone }));
       if (existingDateSchedule) {
         dateSchedule.schedules.reduce((mergedSchedules, schedule) => mergeSchedules(mergedSchedules, schedule), existingDateSchedule.schedules);
       } else {
@@ -145,30 +144,33 @@ class Service {
       }
       return mergedSchedules;
     }
+
     let movieSchedule = filteredByMovieSessions.map(mapToScheduleObject).reduce(mergeDateSchedules, []);
+
     let filteredSchedule = movieSchedule.map((elem) => {
       let dateSchedule = {
         "day": elem.day,
-        "schedules": elem.schedules.filter(elem => elem.cityName === city)
+        "schedules": elem.schedules.filter(elem => elem.cityName === params.city)
       }
       return dateSchedule
     })
 
-    if (date !== wholeCalender) {
-      filteredSchedule = filteredSchedule.filter(elem => elem.day === new Date (date).toLocaleDateString())
+    if (params.date) {
+      filteredSchedule = filteredSchedule.filter(elem => elem.day === new Date(params.date).toLocaleDateString())
     }
 
-    if (cinema !== allCinemas) {
+    if (params.cinema) {
       filteredSchedule = filteredSchedule.map((elem) => {
         let dateSchedule = {
           "day": elem.day,
-          "schedules": elem.schedules.filter(elem => elem.cinemaName === cinema)
+          "schedules": elem.schedules.filter(elem => elem.cinemaName === params.cinema)
         }
         return dateSchedule
       })
     }
+
     return filteredSchedule;
   }
 }
 
-export default new Service();
+export default new ScheduleService();

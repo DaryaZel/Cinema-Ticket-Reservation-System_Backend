@@ -1,8 +1,10 @@
 export function movieSessionSample() {
   let movieSessionsSample = [
-    {$sort: {
-      date:1
-    }},
+    {
+      $sort: {
+        date: 1
+      }
+    },
     {
       $lookup: {
         from: "cinemas",
