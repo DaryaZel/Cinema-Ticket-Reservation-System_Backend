@@ -1,5 +1,6 @@
 import MovieSession from './movieSessionModel.js';
-import { sessionsCalenderSample } from './helpers/MovieSessionAggregationHelpers.js';
+import { sessionsCalenderSample, movieSessionSample } from './helpers/MovieSessionAggregationHelpers.js';
+import mongoose from 'mongoose';
 
 class MovieSessionsService {
 
@@ -14,7 +15,8 @@ class MovieSessionsService {
     }
 
     async getSession(id) {
-        const foundMovieSession = await MovieSession.findById(id);
+        let movieSessionObjectId = mongoose.Types.ObjectId(id)
+        const foundMovieSession = await MovieSession.aggregate(movieSessionSample(movieSessionObjectId))
         return foundMovieSession;
     }
 }

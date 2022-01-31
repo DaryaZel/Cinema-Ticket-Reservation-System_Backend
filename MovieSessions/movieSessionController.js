@@ -44,11 +44,11 @@ class MovieSessionsController {
 
     async getSession(req, res) {
         try {
-            const movieId = req.params.id;
-            if (!movieId) {
-                throw new BadRequestParametersError('Movie Id not specified');
+            const movieSessionId = req.params.id;
+            if (!movieSessionId) {
+                throw new BadRequestParametersError('Movie session Id not specified');
             }
-            const movieSession = await MovieSessionsService.getSession(movieId);
+            const movieSession = await MovieSessionsService.getSession(movieSessionId);
             return res.json(movieSession);
         }
         catch (error) {
