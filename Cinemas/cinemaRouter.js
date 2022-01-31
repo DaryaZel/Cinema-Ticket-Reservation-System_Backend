@@ -1,11 +1,8 @@
 import express from 'express';
-import Controller from './cinemaController.js';
+import CinemaController from './cinemaController.js';
 
 const router = express.Router();
-router.get('/', Controller.getAll);
-router.get('/:id', Controller.getOne);
-router.post('/', Controller.create);
-router.put('/', Controller.update);
-router.delete('/:id', Controller.delete);
+router.route('/').get(CinemaController.getAllCinemas).post(CinemaController.createCinema);
+router.get('/:id', CinemaController.getCinema);
 
 export default router;

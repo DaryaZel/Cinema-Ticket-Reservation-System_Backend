@@ -1,43 +1,23 @@
 import Cinema from './cinemaModel.js';
-import { RequestError } from '../Errors/RequestError.js';
+import { cinemaSample } from './helpers/cinemaAggregationHelpers.js';
 
-class Service {
-  async create(cinema) {
+class CinemaService {
+
+  async createCinema(cinema) {
     const createdCinema = await Cinema.create(cinema);
     return createdCinema;
   }
-  async getAll(city) {
-    let cinemas = await Cinema.aggregate([
-      {
-        $lookup: {
-          from: "cities",
-          localField: "city_id",
-          foreignField: "_id",
-          as: "city"
-        }
-      },
-      {
-        $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ["$city", 0] }, "$$ROOT"] } }
-      },
-      { $project: { city: 0 } }
-    ])
+
+  async getAllCinemas(city) {
+    let cinemas = await Cinema.aggregate(cinemaSample())
     let filteredCinemas = cinemas.filter(elem => elem.cityName === city)
     return filteredCinemas;
   }
-  async getOne(id) {
+
+  async getCinema(id) {
     const foundCinema = await Cinema.findById(id);
     return foundCinema;
   }
-  async update(cinema) {
-    if (!cinema._id) {
-      throw new RequestError('Id not specified');
-    }
-    const updatedCinema = await Cinema.findByIdAndUpdate(cinema._id, cinema, { new: true });
-    return updatedCinema;
-  }
-  async delete(id) {
-    const deletedCinema = await Cinema.findByIdAndDelete(id);
-    return deletedCinema;
-  }
 }
-export default new Service();
+
+export default new CinemaService();

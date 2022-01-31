@@ -1,57 +1,57 @@
-import Service from './cinemaService.js';
-import { RequestError } from '../Errors/RequestError.js';
+import CinemaService from './cinemaService.js';
+import { BadRequestParametersError } from '../Errors/BadRequestParametersError.js';
+import { AppError } from '../Errors/AppError.js';
+import { isEmpty } from '../util/isEmptyObj.js';
 
-class Controller {
-    async create(req, res) {
+class CinemaController {
+
+    async createCinema(req, res) {
         try {
-            const cinema = await Service.create(req.body);
+            if (isEmpty(req.body)) {
+                throw new BadRequestParametersError('Request body is empty');
+            }
+            const cinema = await CinemaService.createCinema(req.body);
             return res.json(cinema);
         }
         catch (error) {
-            return res.status(500).json(error);
-        }
-    }
-    async getAll(req, res) {
-        try {
-            const city = req.query.city;
-            const cinemas = await Service.getAll(city);
-            return res.json(cinemas);
-        }
-        catch (error) {
-            return res.status(500).json(error);
-        }
-    }
-    async getOne(req, res) {
-        try {
-            const cinema = await Service.getOne(req.params.id);
-            return res.json(cinema);
-        }
-        catch (error) {
-            return res.status(500).json(error);
-        }
-    }
-    async update(req, res) {
-        try {
-            const cinema = await Service.update(req.body);
-            return res.json(cinema);
-        }
-        catch (error) {
-            if (error instanceof RequestError) {
-                return res.status(400).json(error.message);
+            if (error instanceof AppError) {
+                return res.status(error.statusCode).json(error.message);
             }
             else {
                 return res.status(500).json(error);
             }
         }
     }
-    async delete(req, res) {
+
+    async getAllCinemas(req, res) {
         try {
-            const cinema = await Service.delete(req.params.id);
-            return res.json(cinema);
+            const city = req.query.city;
+            const cinemas = await CinemaService.getAllCinemas(city);
+            return res.json(cinemas);
         }
         catch (error) {
             return res.status(500).json(error);
         }
     }
+
+    async getCinema(req, res) {
+        try {
+            const cinemaId = req.params.id;
+            if (!cinemaId) {
+                throw new BadRequestParametersError('Cinema Id not specified');
+            }
+            const cinema = await CinemaService.getCinema(cinemaId);
+            return res.json(cinema);
+        }
+        catch (error) {
+            if (error instanceof AppError) {
+                return res.status(error.statusCode).json(error.message);
+            }
+            else {
+                return res.status(500).json(error);
+            }
+        }
+    }
 }
-export default new Controller();
+
+export default new CinemaController();
