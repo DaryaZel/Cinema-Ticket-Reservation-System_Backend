@@ -1,37 +1,16 @@
-import Service from './moviesService.js';
+import MovieService from './moviesService.js';
+import { BadRequestParametersError } from '../Errors/BadRequestParametersError.js';
 import { AppError } from '../Errors/AppError.js';
+import { isEmpty } from '../util/isEmptyObj.js';
 
-class Controller {
-    async create(req, res) {
+class MovieController {
+
+    async createMovie(req, res) {
         try {
-            const movie = await Service.create(req.body);
-            return res.json(movie);
-        }
-        catch (error) {
-            return res.status(500).json(error);
-        }
-    }
-    async getAll(req, res) {
-        try {
-            const movies = await Service.getAll();
-            return res.json(movies);
-        }
-        catch (error) {
-            return res.status(500).json(error);
-        }
-    }
-    async getOne(req, res) {
-        try {
-            const movie = await Service.getOne(req.params.id);
-            return res.json(movie);
-        }
-        catch (error) {
-            return res.status(500).json(error);
-        }
-    }
-    async update(req, res) {
-        try {
-            const movie = await Service.update(req.body);
+            if (isEmpty(req.body)) {
+                throw new BadRequestParametersError('Request body is empty');
+            }
+            const movie = await MovieService.createMovie(req.body);
             return res.json(movie);
         }
         catch (error) {
@@ -43,14 +22,36 @@ class Controller {
             }
         }
     }
-    async delete(req, res) {
+
+    async getAllMovies(req, res) {
         try {
-            const movie = await Service.delete(req.params.id);
-            return res.json(movie);
+            const movies = await MovieService.getAllMovies();
+            return res.json(movies);
         }
         catch (error) {
             return res.status(500).json(error);
         }
     }
+
+    async getMovie(req, res) {
+        try {
+            const movieId = req.params.id;
+            if (!movieId) {
+                throw new BadRequestParametersError('Movie Id not specified');
+            }
+            const movie = await MovieService.getMovie(movieId);
+            return res.json(movie);
+        }
+        catch (error) {
+            if (error instanceof AppError) {
+                return res.status(error.statusCode).json(error.message);
+            }
+            else {
+                return res.status(500).json(error);
+            }
+        }
+    }
+
 }
-export default new Controller();
+
+export default new MovieController();
