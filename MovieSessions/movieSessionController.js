@@ -26,7 +26,7 @@ class MovieSessionsController {
     async getSessionsCalender(req, res) {
         try {
             const timeZoneParam = req.query.timeZone;
-            if (!timeZone) {
+            if (!timeZoneParam) {
                 throw new BadRequestParametersError('Timezone not specified');
             }
             const sessionsCalender = await MovieSessionsService.getSessionsCalender(timeZoneParam);
