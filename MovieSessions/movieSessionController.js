@@ -1,57 +1,66 @@
-import Service from './movieSessionService.js';
-import { RequestError } from '../Errors/RequestError.js';
+import MovieSessionsService from './movieSessionService.js';
+import { BadRequestParametersError } from '../Errors/BadRequestParametersError.js';
+import { AppError } from '../Errors/AppError.js';
+import { isEmpty } from '../util/isEmptyObj.js';
 
-class Controller {
-    async create(req, res) {
+class MovieSessionsController {
+
+    async createSession(req, res) {
         try {
-            const movieSession = await Service.create(req.body);
+            if (isEmpty(req.body)) {
+                throw new BadRequestParametersError('Request body is empty');
+            }
+            const movieSession = await MovieSessionsService.createSession(req.body);
             return res.json(movieSession);
         }
         catch (error) {
-            return res.status(500).json(error);
-        }
-    }
-    async getSessionsCalenderArray(req, res) {
-        try {
-            const timeZoneParam = req.query.timeZone;
-            const movieSessions = await Service.getSessionsCalenderArray(timeZoneParam);
-            return res.json(movieSessions);
-        }
-        catch (error) {
-            return res.status(500).json(error);
-        }
-    }
-    async getOne(req, res) {
-        try {
-            const movieSession = await Service.getOne(req.params.id);
-            return res.json(movieSession);
-        }
-        catch (error) {
-            return res.status(500).json(error);
-        }
-    }
-    async update(req, res) {
-        try {
-            const movieSession = await Service.update(req.body);
-            return res.json(movieSession);
-        }
-        catch (error) {
-            if (error instanceof RequestError) {
-                return res.status(400).json(error.message);
+            if (error instanceof AppError) {
+                return res.status(error.statusCode).json(error.message);
             }
             else {
                 return res.status(500).json(error);
             }
         }
     }
-    async delete(req, res) {
+
+    async getSessionsCalender(req, res) {
         try {
-            const movieSession = await Service.delete(req.params.id);
+            const timeZoneParam = req.query.timeZone;
+            if (!timeZone) {
+                throw new BadRequestParametersError('Timezone not specified');
+            }
+            const sessionsCalender = await MovieSessionsService.getSessionsCalender(timeZoneParam);
+            return res.json(sessionsCalender);
+        }
+        catch (error) {
+            if (error instanceof AppError) {
+                return res.status(error.statusCode).json(error.message);
+            }
+            else {
+                return res.status(500).json(error);
+            }
+        }
+    }
+
+    async getSession(req, res) {
+        try {
+            const movieId = req.params.id;
+            if (!movieId) {
+                throw new BadRequestParametersError('Movie Id not specified');
+            }
+            const movieSession = await MovieSessionsService.getSession(movieId);
             return res.json(movieSession);
         }
         catch (error) {
-            return res.status(500).json(error);
+            if (error instanceof AppError) {
+                return res.status(error.statusCode).json(error.message);
+            }
+            else {
+                return res.status(500).json(error);
+            }
         }
     }
+
 }
-export default new Controller();
+
+export default new MovieSessionsController();

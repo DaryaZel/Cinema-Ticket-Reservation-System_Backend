@@ -1,36 +1,22 @@
 import MovieSession from './movieSessionModel.js';
-import { RequestError } from '../Errors/RequestError.js';
+import { sessionsCalenderSample } from './helpers/MovieSessionAggregationHelpers.js';
 
-class Service {
-    async create(movieSession) {
-        const createdMovieSession = await MovieSession.create(movieSession);
+class MovieSessionsService {
+
+    async createSession(movieSession) {
+        const createdMovieSession = await MovieSession.createSession(movieSession);
         return createdMovieSession;
     }
-    async getSessionsCalenderArray(timeZone) {
-        const daysArray = await MovieSession.aggregate([
-            {
-                $group: {
-                    _id: null,
-                    days: { $addToSet: { $dateToString: { date: "$date", format: "%m/%d/%Y", timezone: timeZone } } }
-                }
-            }
-        ])
+
+    async getSessionsCalender(timeZone) {
+        const daysArray = await MovieSession.aggregate(sessionsCalenderSample(timeZone));
         return daysArray[0].days.sort();
     }
-    async getOne(id) {
+
+    async getSession(id) {
         const foundMovieSession = await MovieSession.findById(id);
         return foundMovieSession;
     }
-    async update(movieSession) {
-        if (!movieSession._id) {
-            throw new RequestError('Id not specified');
-        }
-        const updatedMovieSession = await MovieSession.findByIdAndUpdate(movieSession._id, movieSession, { new: true });
-        return updatedMovieSession;
-    }
-    async delete(id) {
-        const deletedMovieSession = await MovieSession.findByIdAndDelete(id);
-        return deletedMovieSession;
-    }
 }
-export default new Service();
+
+export default new MovieSessionsService();
