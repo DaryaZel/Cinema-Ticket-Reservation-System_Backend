@@ -26,17 +26,17 @@ class AvailableSeatService {
         return availableSeats;
     }
     async makeSelectTrue(seat) {
-        const foundSeat = await AvailableSeat.findById(seat.seat_id);
+        const foundSeat = await AvailableSeat.findOne({ seat_id: seat.seat_id });
         if (foundSeat.isSelected === true) {
             throw new RequestError('Sorry, this seat is already selected. Try again in 5 min');
         }
-        const updatedSeat = await AvailableSeat.findByIdAndUpdate(foundSeat, { isSelected: true });
+        const updatedSeat = await AvailableSeat.findByIdAndUpdate(foundSeat, { isSelected: true }, { new: true });
         setTimeout(async () => { await AvailableSeat.findByIdAndUpdate(foundSeat, { isSelected: false }) }, 50000)
         return updatedSeat;
     }
     async makeSelectFalse(seat) {
-        const foundSeat = await AvailableSeat.findById(seat.seat_id);
-        const updatedSeat = await AvailableSeat.findByIdAndUpdate(foundSeat, { isSelected: false });
+        const foundSeat = await AvailableSeat.findOne({ seat_id: seat.seat_id });
+        const updatedSeat = await AvailableSeat.findByIdAndUpdate(foundSeat, { isSelected: false }, { new: true });
         return updatedSeat;
     }
     async reserveSeat(seats) {
