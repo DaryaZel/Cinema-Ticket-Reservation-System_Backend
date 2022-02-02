@@ -22,8 +22,7 @@ class AvailableSeatService {
             {
                 $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ["$seat", 0] }, "$$ROOT"] } }
             },
-            { $project: { seat: 0 } }]).sort({ rowNumber: 1, number: 1 })
-        max   
+            { $project: { seat: 0 } }]).sort({ rowNumber: 1, number: 1 });
         return availableSeats;
     }
     async makeSelectTrue(seat) {
