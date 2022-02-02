@@ -22,7 +22,36 @@ class AvailableSeatService {
             {
                 $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ["$seat", 0] }, "$$ROOT"] } }
             },
-            { $project: { seat: 0 } }]).sort({ rowNumber: 1, number: 1 });
+            { $project: { seat: 0 } },
+            {
+                $lookup:
+                {
+                    from: "sessionprices",
+                    let: { session_id: "$session_id", type: "$type" },
+                    pipeline: [
+                        {
+                            $match:
+                            {
+                                $expr:
+                                {
+                                    $and:
+                                        [
+                                            { $eq: ["$session_id", "$$session_id"] },
+                                            { $gte: ["$seatType", "$$type"] }
+                                        ]
+                                }
+                            }
+                        },
+                        { $project: { seatType: 0, session_id: 0, _id: 0 } },
+                    ],
+                    as: "newprice"
+                }
+            },
+            {
+                $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ["$newprice", 0] }, "$$ROOT"] } }
+            },
+            { $project: { newprice: 0 } },
+        ]).sort({ rowNumber: 1, number: 1 });
         return availableSeats;
     }
     async makeSelectTrue(seat) {
