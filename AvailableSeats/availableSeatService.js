@@ -55,28 +55,24 @@ class AvailableSeatService {
         return availableSeats;
     }
     async makeSelectTrue(seat) {
-        const foundSeat = await AvailableSeat.findOne({ seat_id: seat.seat_id });
+        const foundSeat = await AvailableSeat.findOne({ session_id: seat.session_id, seat_id: seat.seat_id });
         if (foundSeat.isSelected === true) {
             throw new RequestError('Sorry, this seat is already selected. Try again in 5 min');
         }
-        const updatedSeat = await AvailableSeat.findByIdAndUpdate(foundSeat, { isSelected: true }, { new: true });
-        setTimeout(async () => { await AvailableSeat.findByIdAndUpdate(foundSeat, { isSelected: false }) }, 50000)
+        const updatedSeat = await AvailableSeat.findOneAndUpdate({ session_id: seat.session_id, seat_id: seat.seat_id }, { $set: { isSelected: true } }, { new: true });
+        setTimeout(async () => { await AvailableSeat.findOneAndUpdate({ session_id: seat.session_id, seat_id: seat.seat_id }, { $set: { isSelected: false } }) }, 50000)
         return updatedSeat;
     }
     async makeSelectFalse(seat) {
-        const foundSeat = await AvailableSeat.findOne({ seat_id: seat.seat_id });
-        const updatedSeat = await AvailableSeat.findByIdAndUpdate(foundSeat, { isSelected: false }, { new: true });
+        const updatedSeat = await AvailableSeat.findOneAndUpdate({ session_id: seat.session_id, seat_id: seat.seat_id }, { $set: { isSelected: false } }, { new: true });
         return updatedSeat;
     }
     async reserveSeat(seats) {
-        seats.forEach(async (seat) => {
-            seat.isSelected = true
-            seat.isReserved = true
-            await Seat.findByIdAndUpdate(seat._id, seat);
-        })
+        for (let i = 0; i < seats.length; i++) {
+            const updatedSeat = await AvailableSeat.findOneAndUpdate({ session_id: seats[i].session_id, seat_id: seats[i].seat_id }, { $set: { isReserved: true } }, { new: true });
+        }
         const foundSeats = await AvailableSeat.find();
-        return foundSeats
-
+        return foundSeats;
     }
 }
 export default new AvailableSeatService();
