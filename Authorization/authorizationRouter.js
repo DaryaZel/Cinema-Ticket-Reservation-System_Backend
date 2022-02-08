@@ -10,6 +10,6 @@ router.post('/signup', [
     check('password', 'Fill in password field, password must be at least 4 and no more than 10 symbols').isLength({ min: 4, max: 10 })
 ], AuthorizationController.signup);
 router.post('/login', AuthorizationController.login);
-router.get('/users', checkUserAccess([['Admin', 'User']]), AuthorizationController.getUser);
+router.get('/user', checkUserAccess(['Admin', 'User']), AuthorizationController.getUser);
 
 export default router;
