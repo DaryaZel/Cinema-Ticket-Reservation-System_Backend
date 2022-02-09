@@ -22,7 +22,8 @@ class AuthorizationController {
                 }
             }
             const user = await AuthorizationService.signup(req.body);
-            return res.json(user);
+            const token = generateAccessToken(user._id, user.roles);
+            return res.json(token);
         }
         catch (error) {
             if (error instanceof AppError) {
