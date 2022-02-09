@@ -20,7 +20,9 @@ class AuthorizationService {
         const userRole = await Role.findOne({ value: 'User' });
         const hashPassword = bcrypt.hashSync(password, 7);
         const newUser = await User.create({ username, password: hashPassword, email, roles: [userRole._id] });
-        return newUser;
+        const candidateArray = await User.aggregate(userSample(newUser.username));
+        const candidate = candidateArray[0];
+        return candidate;
     }
 
     async login(user) {
