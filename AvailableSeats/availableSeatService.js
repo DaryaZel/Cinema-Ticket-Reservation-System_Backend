@@ -27,7 +27,7 @@ class AvailableSeatService {
                 $lookup:
                 {
                     from: "sessionprices",
-                    let: { session_id: "$session_id", type: "$type" },
+                    let: { type: "$type", session_id: "$session_id" },
                     pipeline: [
                         {
                             $match:
@@ -36,8 +36,8 @@ class AvailableSeatService {
                                 {
                                     $and:
                                         [
-                                            { $eq: ["$session_id", "$$session_id"] },
-                                            { $gte: ["$seatType", "$$type"] }
+                                            { $eq: ["$seatType", "$$type"] },
+                                            { $gte: ["$session_id", "$$session_id"] }
                                         ]
                                 }
                             }
