@@ -1,17 +1,17 @@
-import MovieService from './moviesService.js';
+import CityService from './cityService.js';
 import { BadRequestParametersError } from '../Errors/BadRequestParametersError.js';
 import { AppError } from '../Errors/AppError.js';
 import { isEmpty } from '../util/isEmptyObj.js';
 
-class MovieController {
+class CityController {
 
-    async createMovie(req, res) {
+    async createCity(req, res) {
         try {
             if (isEmpty(req.body)) {
                 throw new BadRequestParametersError('Request body is empty');
             }
-            const movie = await MovieService.createMovie(req.body);
-            return res.json(movie);
+            const city = await CityService.createCity(req.body);
+            return res.json(city);
         }
         catch (error) {
             if (error instanceof AppError) {
@@ -23,24 +23,24 @@ class MovieController {
         }
     }
 
-    async getAllMovies(req, res) {
+    async getAllCities(req, res) {
         try {
-            const movies = await MovieService.getAllMovies();
-            return res.json(movies);
+            const cities = await CityService.getAllCities();
+            return res.json(cities);
         }
         catch (error) {
             return res.status(500).json(error);
         }
     }
 
-    async getMovie(req, res) {
+    async getCity(req, res) {
         try {
-            const movieId = req.params.id;
-            if (!movieId) {
-                throw new BadRequestParametersError('Movie Id not specified');
+            const cityId = req.params.id;
+            if (!cityId) {
+                throw new BadRequestParametersError('City Id not specified');
             }
-            const movie = await MovieService.getMovie(movieId);
-            return res.json(movie);
+            const city = await CityService.getCity(cityId);
+            return res.json(city);
         }
         catch (error) {
             if (error instanceof AppError) {
@@ -54,4 +54,4 @@ class MovieController {
 
 }
 
-export default new MovieController();
+export default new CityController();

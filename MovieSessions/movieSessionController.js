@@ -1,17 +1,17 @@
-import MovieService from './moviesService.js';
+import MovieSessionsService from './movieSessionService.js';
 import { BadRequestParametersError } from '../Errors/BadRequestParametersError.js';
 import { AppError } from '../Errors/AppError.js';
 import { isEmpty } from '../util/isEmptyObj.js';
 
-class MovieController {
+class MovieSessionsController {
 
-    async createMovie(req, res) {
+    async createSession(req, res) {
         try {
             if (isEmpty(req.body)) {
                 throw new BadRequestParametersError('Request body is empty');
             }
-            const movie = await MovieService.createMovie(req.body);
-            return res.json(movie);
+            const movieSession = await MovieSessionsService.createSession(req.body);
+            return res.json(movieSession);
         }
         catch (error) {
             if (error instanceof AppError) {
@@ -23,24 +23,33 @@ class MovieController {
         }
     }
 
-    async getAllMovies(req, res) {
+    async getSessionsCalender(req, res) {
         try {
-            const movies = await MovieService.getAllMovies();
-            return res.json(movies);
+            const timeZoneParam = req.query.timeZone;
+            if (!timeZone) {
+                throw new BadRequestParametersError('Timezone not specified');
+            }
+            const sessionsCalender = await MovieSessionsService.getSessionsCalender(timeZoneParam);
+            return res.json(sessionsCalender);
         }
         catch (error) {
-            return res.status(500).json(error);
+            if (error instanceof AppError) {
+                return res.status(error.statusCode).json(error.message);
+            }
+            else {
+                return res.status(500).json(error);
+            }
         }
     }
 
-    async getMovie(req, res) {
+    async getSession(req, res) {
         try {
             const movieId = req.params.id;
             if (!movieId) {
                 throw new BadRequestParametersError('Movie Id not specified');
             }
-            const movie = await MovieService.getMovie(movieId);
-            return res.json(movie);
+            const movieSession = await MovieSessionsService.getSession(movieId);
+            return res.json(movieSession);
         }
         catch (error) {
             if (error instanceof AppError) {
@@ -54,4 +63,4 @@ class MovieController {
 
 }
 
-export default new MovieController();
+export default new MovieSessionsController();

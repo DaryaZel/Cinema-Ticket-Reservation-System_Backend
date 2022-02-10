@@ -1,15 +1,15 @@
 import express from 'express';
-import Controller from './authorizationController.js';
+import AuthorizationController from './authorizationController.js';
 import { check } from 'express-validator';
 import { checkUserAccess } from './middleware/checkUserAccessMiddleware.js';
 
 const router = express.Router();
 router.post('/signup', [
-    check('username', 'No empty').notEmpty(),
-    check('password', 'Length 4-10').isLength({ min: 4, max: 10 })
-], Controller.signup);
-router.post('/login', Controller.login);
-router.get('/roles', Controller.makeRoles);
-router.get('/users', checkUserAccess(['Admin']), Controller.getUsers);
+    check('username', 'Fill in username field').notEmpty(),
+    check('email', 'Fill in email field').notEmpty(),
+    check('password', 'Fill in password field, password must be at least 4 and no more than 10 symbols').isLength({ min: 4, max: 10 })
+], AuthorizationController.signup);
+router.post('/login', AuthorizationController.login);
+router.get('/users', checkUserAccess([['Admin', 'User']]), AuthorizationController.getUser);
 
 export default router;

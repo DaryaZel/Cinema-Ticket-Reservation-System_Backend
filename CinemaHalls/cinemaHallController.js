@@ -1,17 +1,17 @@
-import MovieService from './moviesService.js';
+import CinemaHallService from './cinemaHallService.js';
 import { BadRequestParametersError } from '../Errors/BadRequestParametersError.js';
 import { AppError } from '../Errors/AppError.js';
 import { isEmpty } from '../util/isEmptyObj.js';
 
-class MovieController {
+class CinemaHallController {
 
-    async createMovie(req, res) {
+    async createHall(req, res) {
         try {
             if (isEmpty(req.body)) {
                 throw new BadRequestParametersError('Request body is empty');
             }
-            const movie = await MovieService.createMovie(req.body);
-            return res.json(movie);
+            const cinemaHall = await CinemaHallService.createHall(req.body);
+            return res.json(cinemaHall);
         }
         catch (error) {
             if (error instanceof AppError) {
@@ -23,24 +23,14 @@ class MovieController {
         }
     }
 
-    async getAllMovies(req, res) {
+    async getHall(req, res) {
         try {
-            const movies = await MovieService.getAllMovies();
-            return res.json(movies);
-        }
-        catch (error) {
-            return res.status(500).json(error);
-        }
-    }
-
-    async getMovie(req, res) {
-        try {
-            const movieId = req.params.id;
-            if (!movieId) {
-                throw new BadRequestParametersError('Movie Id not specified');
+            const cinemaHallId = req.params.id;
+            if (!cinemaHallId) {
+                throw new BadRequestParametersError('Cinema hall Id not specified');
             }
-            const movie = await MovieService.getMovie(movieId);
-            return res.json(movie);
+            const cinemaHall = await CinemaHallService.getOne(cinemaHallId);
+            return res.json(cinemaHall);
         }
         catch (error) {
             if (error instanceof AppError) {
@@ -54,4 +44,4 @@ class MovieController {
 
 }
 
-export default new MovieController();
+export default new CinemaHallController();

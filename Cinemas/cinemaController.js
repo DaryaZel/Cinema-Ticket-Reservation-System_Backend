@@ -1,17 +1,17 @@
-import MovieService from './moviesService.js';
+import CinemaService from './cinemaService.js';
 import { BadRequestParametersError } from '../Errors/BadRequestParametersError.js';
 import { AppError } from '../Errors/AppError.js';
 import { isEmpty } from '../util/isEmptyObj.js';
 
-class MovieController {
+class CinemaController {
 
-    async createMovie(req, res) {
+    async createCinema(req, res) {
         try {
             if (isEmpty(req.body)) {
                 throw new BadRequestParametersError('Request body is empty');
             }
-            const movie = await MovieService.createMovie(req.body);
-            return res.json(movie);
+            const cinema = await CinemaService.createCinema(req.body);
+            return res.json(cinema);
         }
         catch (error) {
             if (error instanceof AppError) {
@@ -23,24 +23,25 @@ class MovieController {
         }
     }
 
-    async getAllMovies(req, res) {
+    async getAllCinemas(req, res) {
         try {
-            const movies = await MovieService.getAllMovies();
-            return res.json(movies);
+            const city = req.query.city;
+            const cinemas = await CinemaService.getAllCinemas(city);
+            return res.json(cinemas);
         }
         catch (error) {
             return res.status(500).json(error);
         }
     }
 
-    async getMovie(req, res) {
+    async getCinema(req, res) {
         try {
-            const movieId = req.params.id;
-            if (!movieId) {
-                throw new BadRequestParametersError('Movie Id not specified');
+            const cinemaId = req.params.id;
+            if (!cinemaId) {
+                throw new BadRequestParametersError('Cinema Id not specified');
             }
-            const movie = await MovieService.getMovie(movieId);
-            return res.json(movie);
+            const cinema = await CinemaService.getCinema(cinemaId);
+            return res.json(cinema);
         }
         catch (error) {
             if (error instanceof AppError) {
@@ -51,7 +52,6 @@ class MovieController {
             }
         }
     }
-
 }
 
-export default new MovieController();
+export default new CinemaController();
