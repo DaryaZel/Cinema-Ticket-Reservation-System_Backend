@@ -26,7 +26,7 @@ class AvailableSeatService {
             {
                 $lookup:
                 {
-                    from: "sessionprices",
+                    from: "seattypes",
                     let: { type: "$type", session_id: "$session_id" },
                     pipeline: [
                         {
