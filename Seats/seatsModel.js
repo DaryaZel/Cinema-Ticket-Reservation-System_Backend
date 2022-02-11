@@ -7,4 +7,4 @@ const Seat = new mongoose.Schema({
     type: { type: String, required: true }
 })
 
-export default mongoose.model('Seat', Seat)
+export default mongoose.model('Seat', Seat);

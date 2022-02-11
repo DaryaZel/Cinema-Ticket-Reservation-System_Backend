@@ -6,6 +6,7 @@ import cinemaRoutes from './Cinemas/cinemaRouter.js';
 import cinemaHallRoutes from './CinemaHalls/cinemaHallRouter.js';
 import seatsRoutes from './Seats/seatsRouter.js';
 import availableSeatsRoutes from './AvailableSeats/availableSeatRouter.js';
+import seatTypesRoutes from './SeatTypes/seatTypesRouter.js';
 import scheduleRoutes from './Schedule/scheduleRouter.js';
 import imageRoutes from './ImagesStorage/imagesRouter.js';
 import movieSessionRoutes from './MovieSessions/movieSessionRouter.js';
@@ -29,6 +30,7 @@ app.use('/schedule', scheduleRoutes);
 app.use('/image', imageRoutes);
 app.use('/seat', seatsRoutes);
 app.use('/availableseat', availableSeatsRoutes);
+app.use('/seatTypes', seatTypesRoutes);
 
 async function startApp() {
   try {
