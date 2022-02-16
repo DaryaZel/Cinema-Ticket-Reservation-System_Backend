@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import http from 'http';
+import cors from 'cors';
 import WebSocket, { WebSocketServer } from 'ws';
 import moviesRoutes from './Movies/moviesRouter.js';
 import citiesRoutes from './Cities/citiesRouter.js';
@@ -22,6 +23,8 @@ const server = http.createServer(app);
 app.get("/", (req, res) => {
   res.send('Hello World!')
 })
+
+app.use(cors());
 app.use(express.json());
 app.use('/auth', authorizationRoutes);
 app.use('/movie', moviesRoutes);
