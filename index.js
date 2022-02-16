@@ -16,7 +16,6 @@ import movieSessionRoutes from './MovieSessions/movieSessionRouter.js';
 import authorizationRoutes from './Authorization/authorizationRouter.js';
 import mongoose from 'mongoose';
 
-
 const PORT = process.env.PORT || 5000;
 const app = express();
 const server = http.createServer(app);
@@ -52,14 +51,16 @@ webSocketServer.on('connection', (ws, req) => {
 
   ws.on("error", e => ws.send(e));
 
-  setInterval(() => {
+  let intervalID = setInterval(() => {
     getSeats().then((seats) => {
-      console.log( JSON.stringify(seats))
+      console.log(JSON.stringify(seats))
       ws.send(
         JSON.stringify(seats)
       );
     })
   }, 2000)
+
+  ws.on("close", () => clearInterval(intervalID));
 
 });
 
