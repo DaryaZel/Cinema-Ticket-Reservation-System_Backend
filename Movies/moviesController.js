@@ -25,11 +25,28 @@ class MovieController {
 
     async getAllMovies(req, res) {
         try {
-            const movies = await MovieService.getAllMovies();
+            const params = {
+                city: req.query.city,
+                cinema: req.query.cinema,
+                date: req.query.date,
+                timezone: req.query.timeZone
+            }
+            if (!params.city) {
+                throw new BadRequestParametersError('City parameter not specified');
+            }
+            if (!params.timezone) {
+                throw new BadRequestParametersError('Timezone parameter not specified');
+            }
+            const movies = await MovieService.getAllMovies(params);
             return res.json(movies);
         }
         catch (error) {
-            return res.status(500).json(error);
+            if (error instanceof AppError) {
+                return res.status(error.statusCode).json(error.message);
+            }
+            else {
+                return res.status(500).json(error);
+            }
         }
     }
 
