@@ -16,6 +16,7 @@ import imageRoutes from './ImagesStorage/imagesRouter.js';
 import movieSessionRoutes from './MovieSessions/movieSessionRouter.js';
 import authorizationRoutes from './Authorization/authorizationRouter.js';
 import mongoose from 'mongoose';
+const clients = new Set();
 
 const PORT = process.env.PORT || 5000;
 const app = express();
@@ -41,6 +42,7 @@ app.use('/seatTypes', seatTypesRoutes);
 const webSocketServer = new WebSocketServer({ server });
 
 webSocketServer.on('connection', (ws, req) => {
+  clients.add(ws);
   let url = req.url.slice(2).toString();
   const params = new URLSearchParams(url);
   const sessionIdParam = params.get('movieSessionId');
@@ -48,22 +50,63 @@ webSocketServer.on('connection', (ws, req) => {
     const availableSeat = await AvailableSeatService.getAllAvailableSeats(sessionIdParam);
     return availableSeat
   }
-  // ws.on('message', function message(data) {
-  //   console.log(`Received message ${data} from user ${client}`);
-  // });
+  async function makeSeatSelectedTrue(seat) {
+    await AvailableSeatService.makeSelectTrue(seat);
+  }
+  async function makeSeatSelectedFalse(seat) {
+    await AvailableSeatService.makeSelectFalse(seat);
+  }
+  async function reserveSeat(seat) {
+    await AvailableSeatService.reserveSeat(seat);
+  }
+  ws.on('message', function message(data) {
+    const jsonMessage = JSON.parse(data);
+    if (jsonMessage.event === 'makeSeatSelectedTrue') {
+      makeSeatSelectedTrue(jsonMessage.seat).then(() => {
+        getSeats().then((seats) => {
+          for (let client of clients) {
+            client.send(JSON.stringify(seats));
+          }
+        })
+      })
+    }
+    else if (jsonMessage.event === 'makeSeatSelectedFalse') {
+      makeSeatSelectedFalse(jsonMessage.seat).then(() => {
+        getSeats().then((seats) => {
+          for (let client of clients) {
+            client.send(JSON.stringify(seats));
+          }
+        })
+      })
+    }
+    else if (jsonMessage.event === 'reserveSeat') {
+      reserveSeat(jsonMessage.seat).then(() => {
+        getSeats().then((seats) => {
+          for (let client of clients) {
+            client.send(JSON.stringify(seats));
+          }
+        })
+      })
+    }
 
-  ws.on("error", e => ws.send(e));
+  });
 
-  let intervalID = setInterval(() => {
-    getSeats().then((seats) => {
-      console.log(JSON.stringify(seats))
-      ws.send(
-        JSON.stringify(seats)
-      );
-    })
-  }, 2000)
+  ws.on("error", e => {
+    console.log(e)
+    ws.send(e)
+  }
+  );
 
-  ws.on("close", () => clearInterval(intervalID));
+
+  getSeats().then((seats) => {
+    ws.send(
+      JSON.stringify(seats)
+    );
+  })
+
+  ws.on('close', function () {
+    clients.delete(ws);
+  })
 
 });
 
