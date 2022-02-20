@@ -32,7 +32,7 @@ class AvailableSeatController {
     async makeSelectTrue(req, res) {
         try {
             if (isEmpty(req.body)) {
-                throw new BadRequestParametersError('Request body is empty');
+                throw new BadRequestParametersError('Please, choose seats for reservation!');
             }
             const notAvailableSeat = await AvailableSeatService.makeSelectTrue(req.body);
             return res.json(notAvailableSeat);

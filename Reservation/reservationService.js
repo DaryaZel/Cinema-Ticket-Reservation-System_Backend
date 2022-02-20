@@ -1,6 +1,7 @@
 import Reservation from './reservationModel.js';
 import Ticket from './ticketModel.js';
 import mongoose from 'mongoose';
+import { reservationSample } from './helpers/ReservationsAggregationHelper.js';
 
 class ReservationService {
 
@@ -18,6 +19,11 @@ class ReservationService {
         }
         const createdReservation = await Reservation.create(reservation);
         return createdReservation;
+    }
+    async getReservations(userId) {
+        let userObjectId = mongoose.Types.ObjectId(userId)
+        const foundReservations = await Reservation.aggregate(reservationSample(userObjectId))
+        return foundReservations;
     }
 
 }
