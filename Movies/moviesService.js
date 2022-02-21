@@ -1,6 +1,7 @@
 import Movie from './moviesModel.js';
 import MovieSession from '../MovieSessions/movieSessionModel.js';
-import { movieSample } from './helpers/MovieAggregationHelpers.js';
+import { movieSample, sessionsCalenderSample } from './helpers/MovieAggregationHelpers.js';
+import mongoose from 'mongoose';
 
 class MovieService {
 
@@ -24,13 +25,18 @@ class MovieService {
             }
             return newArray;
         }, []);
-        
+
         return foundMovies;
     }
 
-    async getMovie(id) {
-        const foundMovie = await Movie.findById(id);
-        return foundMovie;
+    async getMovie(movieId, timeZone) {
+        const movieObjectId = mongoose.Types.ObjectId(movieId);
+        const movieInformation = await Movie.findById(movieId);
+        const daysArray = await MovieSession.aggregate(sessionsCalenderSample(timeZone, movieObjectId));
+        const sortedDaysArray = daysArray[0].days.sort();
+        const release_day = sortedDaysArray[0];
+        const last_day = sortedDaysArray[sortedDaysArray.length - 1];
+        return { movieInformation, release_day, last_day };
     }
 }
 export default new MovieService();

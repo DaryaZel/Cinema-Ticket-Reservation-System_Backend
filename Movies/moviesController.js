@@ -53,10 +53,11 @@ class MovieController {
     async getMovie(req, res) {
         try {
             const movieId = req.params.id;
+            const timeZone = req.query.timeZone;
             if (!movieId) {
                 throw new BadRequestParametersError('Movie Id not specified');
             }
-            const movie = await MovieService.getMovie(movieId);
+            const movie = await MovieService.getMovie(movieId, timeZone);
             return res.json(movie);
         }
         catch (error) {
