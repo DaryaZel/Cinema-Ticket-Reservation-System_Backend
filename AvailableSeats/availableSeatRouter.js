@@ -6,5 +6,6 @@ router.route('/').get(AvailableSeatController.getAllAvailableSeats).post(Availab
 router.put('/addSelect', AvailableSeatController.makeSelectTrue);
 router.put('/removeSelect', AvailableSeatController.makeSelectFalse);
 router.put('/reserve', AvailableSeatController.reserveSeat);
+router.put('/removeAllSelections', AvailableSeatController.makeAllSelectedSeatsFalse);
 
 export default router;

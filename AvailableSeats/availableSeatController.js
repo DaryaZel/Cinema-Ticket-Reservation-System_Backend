@@ -80,5 +80,22 @@ class AvailableSeatController {
             }
         }
     }
+    async makeAllSelectedSeatsFalse(req, res) {
+        try {
+            if (isEmpty(req.body)) {
+                throw new BadRequestParametersError('Request body is empty');
+            }
+            const seat = await AvailableSeatService.makeAllSelectedSeatsFalse(req.body);
+            return res.json(seat);
+        }
+        catch (error) {
+            if (error instanceof AppError) {
+                return res.status(error.statusCode).json(error.message);
+            }
+            else {
+                return res.status(500).json(error);
+            }
+        }
+    }
 }
 export default new AvailableSeatController();

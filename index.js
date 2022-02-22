@@ -17,6 +17,7 @@ import movieSessionRoutes from './MovieSessions/movieSessionRouter.js';
 import reservationRoutes from './Reservation/reservationRouter.js';
 import authorizationRoutes from './Authorization/authorizationRouter.js';
 import mongoose from 'mongoose';
+import AvailableSeat from './AvailableSeats/availableSeatModel.js';
 const clients = new Set();
 
 const PORT = process.env.PORT || 5000;
@@ -48,47 +49,48 @@ webSocketServer.on('connection', (ws, req) => {
   let url = req.url.slice(2).toString();
   const params = new URLSearchParams(url);
   const sessionIdParam = params.get('movieSessionId');
+
+  const changeStream = AvailableSeat.watch();
+  changeStream.on('change', next => {
+    getSeats().then((seats) => {
+      for (let client of clients) {
+        client.send(JSON.stringify(seats));
+      }
+    })
+  });
   async function getSeats() {
     const availableSeat = await AvailableSeatService.getAllAvailableSeats(sessionIdParam);
     return availableSeat
   }
+
   async function makeSeatSelectedTrue(seat) {
     await AvailableSeatService.makeSelectTrue(seat);
-  }
+  };
+
   async function makeSeatSelectedFalse(seat) {
     await AvailableSeatService.makeSelectFalse(seat);
-  }
+  };
+
   async function reserveSeat(seat) {
     await AvailableSeatService.reserveSeat(seat);
-  }
+  };
+  async function makeAllSelectedSeatsFalse(seat) {
+    await AvailableSeatService.makeAllSelectedSeatsFalse(seat);
+  };
+
   ws.on('message', function message(data) {
     const jsonMessage = JSON.parse(data);
     if (jsonMessage.event === 'makeSeatSelectedTrue') {
-      makeSeatSelectedTrue(jsonMessage.seat).then(() => {
-        getSeats().then((seats) => {
-          for (let client of clients) {
-            client.send(JSON.stringify(seats));
-          }
-        })
-      })
+      makeSeatSelectedTrue(jsonMessage.seat);
     }
     else if (jsonMessage.event === 'makeSeatSelectedFalse') {
-      makeSeatSelectedFalse(jsonMessage.seat).then(() => {
-        getSeats().then((seats) => {
-          for (let client of clients) {
-            client.send(JSON.stringify(seats));
-          }
-        })
-      })
+      makeSeatSelectedFalse(jsonMessage.seat);
     }
     else if (jsonMessage.event === 'reserveSeat') {
-      reserveSeat(jsonMessage.seat).then(() => {
-        getSeats().then((seats) => {
-          for (let client of clients) {
-            client.send(JSON.stringify(seats));
-          }
-        })
-      })
+      reserveSeat(jsonMessage.seat);
+    }
+    else if (jsonMessage.event === 'makeAllSelectedSeatsFalse') {
+      makeAllSelectedSeatsFalse(jsonMessage.seat);
     }
 
   });
