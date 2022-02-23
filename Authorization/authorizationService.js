@@ -11,11 +11,11 @@ class AuthorizationService {
         const { username, email, password } = user;
         const candidateFindByName = await User.findOne({ username });
         if (candidateFindByName) {
-            throw new RegistrationError('User already exists');
+            throw new RegistrationError('username','User already exists');
         }
         const candidateFindByEmail = await User.findOne({ email });
         if (candidateFindByEmail) {
-            throw new RegistrationError('Email already exists');
+            throw new RegistrationError('email', 'Email already exists');
         }
         const userRole = await Role.findOne({ value: 'User' });
         const hashPassword = bcrypt.hashSync(password, 7);
@@ -30,11 +30,11 @@ class AuthorizationService {
         const candidateArray = await User.aggregate(userSample(username));
         const candidate = candidateArray[0];
         if (!candidate) {
-            throw new AuthenticationError('User does not exist');
+            throw new AuthenticationError('username', 'User does not exist');
         }
         const validPassword = await bcrypt.compare(password, candidate.password);
         if (!validPassword) {
-            throw new AuthenticationError('Password is wrong');
+            throw new AuthenticationError('password', 'Password is wrong');
         };
         return candidate;
     }

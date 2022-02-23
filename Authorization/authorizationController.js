@@ -1,6 +1,8 @@
 import AuthorizationService from './authorizationService.js';
 import { validationResult } from 'express-validator';
 import { ValidationError } from '../Errors/ValidationError.js';
+import { AuthenticationError } from '../Errors/AuthenticationError.js';
+import { RegistrationError } from '../Errors/RegistrationError.js';
 import { AppError } from '../Errors/AppError.js';
 import { decodedAccessToken } from './helpers/accessTokenDecoding.js';
 import { generateAccessToken } from './helpers/accessTokenGeneration.js';
@@ -14,19 +16,17 @@ class AuthorizationController {
             const validations = validationResult(req);
             const errorsArray = validations.errors;
             if (!isEmpty(errorsArray)) {
-                if (errorsArray.length === 1) {
-                    throw new ValidationError(errorsArray[0].msg);
-                }
-                else {
-                    throw new ValidationError("Fill in all fields, password must be at least 4 and no more than 10 symbols");
-                }
+                throw new ValidationError('Sign Up form validation failed', errorsArray)
             }
             const user = await AuthorizationService.signup(req.body);
             const token = generateAccessToken(user._id, user.roles);
             return res.json(token);
         }
         catch (error) {
-            if (error instanceof AppError) {
+            if ((error instanceof ValidationError) || (error instanceof RegistrationError)) {
+                return res.status(error.statusCode).json(error.asJSON());
+            }
+            else if (error instanceof AppError) {
                 return res.status(error.statusCode).json(error.message);
             }
             else {
@@ -42,7 +42,10 @@ class AuthorizationController {
             return res.json(token);
         }
         catch (error) {
-            if (error instanceof AppError) {
+            if ((error instanceof AuthenticationError)) {
+                return res.status(error.statusCode).json(error.asJSON());
+            }
+            else if (error instanceof AppError) {
                 return res.status(error.statusCode).json(error.message);
             }
             else {
