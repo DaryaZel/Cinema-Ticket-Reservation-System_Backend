@@ -102,6 +102,7 @@ webSocketServer.on('connection', (ws, req) => {
     else if (jsonMessage.event === 'makeAllSelectedSeatsFalse') {
       makeAllSelectedSeatsFalse(jsonMessage.seat).then(() => {
         getSeats().then((seats) => {
+          seats.push('makeAllSelectedSeatsFalse');
           for (let client of clients) {
             client.send(JSON.stringify(seats));
           }
@@ -116,8 +117,6 @@ webSocketServer.on('connection', (ws, req) => {
     ws.send(e)
   }
   );
-
-
   getSeats().then((seats) => {
     ws.send(
       JSON.stringify(seats)
