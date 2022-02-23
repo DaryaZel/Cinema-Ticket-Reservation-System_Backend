@@ -110,8 +110,8 @@ webSocketServer.on('connection', (ws, req) => {
   })
 
   ws.on('close', function () {
-    changeStream.close();
     clients.delete(ws);
+    changeStream.close();
   })
 
 });
