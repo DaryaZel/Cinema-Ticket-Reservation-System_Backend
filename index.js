@@ -50,15 +50,6 @@ webSocketServer.on('connection', (ws, req) => {
   const params = new URLSearchParams(url);
   const sessionIdParam = params.get('movieSessionId');
 
-  const changeStream = AvailableSeat.watch();
-  changeStream.on('change', (next) => {
-    console.log(next)
-    getSeats().then((seats) => {
-      for (let client of clients) {
-        client.send(JSON.stringify(seats));
-      }
-    })
-  });
   async function getSeats() {
     const availableSeat = await AvailableSeatService.getAllAvailableSeats(sessionIdParam);
     return availableSeat
@@ -82,16 +73,40 @@ webSocketServer.on('connection', (ws, req) => {
   ws.on('message', function message(data) {
     const jsonMessage = JSON.parse(data);
     if (jsonMessage.event === 'makeSeatSelectedTrue') {
-      makeSeatSelectedTrue(jsonMessage.seat);
+      makeSeatSelectedTrue(jsonMessage.seat).then(() => {
+        getSeats().then((seats) => {
+          for (let client of clients) {
+            client.send(JSON.stringify(seats));
+          }
+        })
+      });
     }
     else if (jsonMessage.event === 'makeSeatSelectedFalse') {
-      makeSeatSelectedFalse(jsonMessage.seat);
+      makeSeatSelectedFalse(jsonMessage.seat).then(() => {
+        getSeats().then((seats) => {
+          for (let client of clients) {
+            client.send(JSON.stringify(seats));
+          }
+        })
+      });
     }
     else if (jsonMessage.event === 'reserveSeat') {
-      reserveSeat(jsonMessage.seat);
+      reserveSeat(jsonMessage.seat).then(() => {
+        getSeats().then((seats) => {
+          for (let client of clients) {
+            client.send(JSON.stringify(seats));
+          }
+        })
+      });
     }
     else if (jsonMessage.event === 'makeAllSelectedSeatsFalse') {
-      makeAllSelectedSeatsFalse(jsonMessage.seat);
+      makeAllSelectedSeatsFalse(jsonMessage.seat).then(() => {
+        getSeats().then((seats) => {
+          for (let client of clients) {
+            client.send(JSON.stringify(seats));
+          }
+        })
+      });
     }
 
   });
@@ -111,7 +126,6 @@ webSocketServer.on('connection', (ws, req) => {
 
   ws.on('close', function () {
     clients.delete(ws);
-    changeStream.close();
   })
 
 });
