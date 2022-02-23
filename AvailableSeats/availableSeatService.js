@@ -24,33 +24,17 @@ class AvailableSeatService {
             },
             { $project: { seat: 0 } },
             {
-                $lookup:
-                {
+                $lookup: {
                     from: "seattypes",
-                    let: { type: "$type", session_id: "$session_id" },
-                    pipeline: [
-                        {
-                            $match:
-                            {
-                                $expr:
-                                {
-                                    $and:
-                                        [
-                                            { $eq: ["$seatType", "$$type"] },
-                                            { $gte: ["$session_id", "$$session_id"] }
-                                        ]
-                                }
-                            }
-                        },
-                        { $project: { seatType: 0, session_id: 0, _id: 0 } },
-                    ],
-                    as: "newprice"
+                    localField: "seatType_id",
+                    foreignField: "_id",
+                    as: "seatTypes"
                 }
             },
             {
-                $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ["$newprice", 0] }, "$$ROOT"] } }
+                $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ["$seatTypes", 0] }, "$$ROOT"] } }
             },
-            { $project: { newprice: 0 } },
+            { $project: { seatTypes: 0 } }
         ]).sort({ rowNumber: 1, number: 1 });
         return availableSeats;
     }
@@ -68,7 +52,7 @@ class AvailableSeatService {
     }
     async reserveSeat(seats) {
         for (let i = 0; i < seats.length; i++) {
-            const updatedSeat = await AvailableSeat.findOneAndUpdate({ session_id: seats[i].session_id, seat_id: seats[i].seat_id }, { $set: { isReserved: true, isSelected: false } }, { new: true });
+            const updatedSeat = await AvailableSeat.findOneAndUpdate({ session_id: seats[i].session_id, seat_id: seats[i].seat_id }, { $set: { isReserved: true } }, { new: true });
         }
         const foundSeats = await AvailableSeat.find();
         return foundSeats;

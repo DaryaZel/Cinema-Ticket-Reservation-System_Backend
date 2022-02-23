@@ -51,7 +51,8 @@ webSocketServer.on('connection', (ws, req) => {
   const sessionIdParam = params.get('movieSessionId');
 
   const changeStream = AvailableSeat.watch();
-  changeStream.on('change', next => {
+  changeStream.on('change', (next) => {
+    console.log(next)
     getSeats().then((seats) => {
       for (let client of clients) {
         client.send(JSON.stringify(seats));
