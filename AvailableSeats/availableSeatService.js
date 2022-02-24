@@ -24,6 +24,32 @@ class AvailableSeatService {
             },
             { $project: { seat: 0 } },
             {
+                $lookup:
+                {
+                    from: "sessionprices",
+                    let: { session: "$session_id", seattype: "$seatType_id" },
+                    pipeline: [
+                        {
+                            $match:
+                            {
+                                $expr:
+                                {
+                                    $and:
+                                        [
+                                            { $eq: ["$session_id", "$$session"] },
+                                            { $eq: ["$seatType_id", "$$seattype"] }
+                                        ]
+                                }
+                            }
+                        }
+                    ],
+                    as: "types"
+                }
+            }, {
+                $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ["$types", 0] }, "$$ROOT"] } }
+            },
+            { $project: { types: 0 } },
+            {
                 $lookup: {
                     from: "seattypes",
                     localField: "seatType_id",

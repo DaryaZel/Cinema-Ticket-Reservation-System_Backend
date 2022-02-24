@@ -11,13 +11,13 @@ import seatsRoutes from './Seats/seatsRouter.js';
 import availableSeatsRoutes from './AvailableSeats/availableSeatRouter.js';
 import AvailableSeatService from './AvailableSeats/availableSeatService.js';
 import seatTypesRoutes from './SeatTypes/seatTypesRouter.js';
+import sessionsPricesRouter from './SessionsPrices/sessionsPricesRouter.js';
 import scheduleRoutes from './Schedule/scheduleRouter.js';
 import imageRoutes from './ImagesStorage/imagesRouter.js';
 import movieSessionRoutes from './MovieSessions/movieSessionRouter.js';
 import reservationRoutes from './Reservation/reservationRouter.js';
 import authorizationRoutes from './Authorization/authorizationRouter.js';
 import mongoose from 'mongoose';
-import AvailableSeat from './AvailableSeats/availableSeatModel.js';
 const clients = new Set();
 
 const PORT = process.env.PORT || 5000;
@@ -41,6 +41,7 @@ app.use('/image', imageRoutes);
 app.use('/seat', seatsRoutes);
 app.use('/availableseat', availableSeatsRoutes);
 app.use('/seatTypes', seatTypesRoutes);
+app.use('/sessionsprices', sessionsPricesRouter);
 
 const webSocketServer = new WebSocketServer({ server });
 
