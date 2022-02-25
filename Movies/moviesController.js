@@ -50,6 +50,22 @@ class MovieController {
         }
     }
 
+    async searchMovies(req, res) {
+        try {
+            const searchText=req.body;
+            const moviesArray = await MovieService.searchMovies(searchText);
+            return res.json(moviesArray);
+        }
+        catch (error) {
+            if (error instanceof AppError) {
+                return res.status(error.statusCode).json(error.message);
+            }
+            else {
+                return res.status(500).json(error);
+            }
+        }
+    }
+
     async getMovie(req, res) {
         try {
             const movieId = req.params.id;

@@ -28,6 +28,15 @@ class MovieService {
 
         return foundMovies;
     }
+    async searchMovies(searchText) {
+        let payload=searchText.payload.trim();
+        if(!payload){
+            return null
+        }
+        let searchResult = await Movie.find({movieName:{$regex: new RegExp('^'+payload+'.*','i')}}).exec();
+        searchResult=searchResult.slice(0, 5)
+        return searchResult;
+    }
 
     async getMovie(movieId, timeZone) {
         const movieObjectId = mongoose.Types.ObjectId(movieId);
