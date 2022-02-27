@@ -44,12 +44,26 @@ app.use('/seatTypes', seatTypesRoutes);
 app.use('/sessionsprices', sessionsPricesRouter);
 
 const webSocketServer = new WebSocketServer({ server });
-function getRandomInt() {
-  return Math.floor(Math.random() * 100);
+
+function sendHeartbeat() {
+  for (let client of clients) {
+    const pingData = {
+      event: "ping",
+      beat: 1
+    }
+    client.send(JSON.stringify(pingData));
+  }
 }
+
+function initSocketHeartbeat() {
+  if (clients.size == 0) {
+    setInterval(sendHeartbeat, 10000)
+  }
+}
+
 webSocketServer.on('connection', (ws, req) => {
-  const clientID = `client #${getRandomInt()}`
-  console.log(`connected new client = ${clientID}, with request = ${req}`)
+  initSocketHeartbeat()
+
   clients.add(ws);
   let url = req.url.slice(2).toString();
   const params = new URLSearchParams(url);
@@ -77,7 +91,6 @@ webSocketServer.on('connection', (ws, req) => {
 
   ws.on('message', function message(data) {
     const jsonMessage = JSON.parse(data);
-    console.log(`message received on client = ${clientID} with event = ${jsonMessage.event}`)
     if (jsonMessage.event === 'makeSeatSelectedTrue') {
       makeSeatSelectedTrue(jsonMessage.seat).then(() => {
         getSeats().then((seats) => {
@@ -119,7 +132,6 @@ webSocketServer.on('connection', (ws, req) => {
   });
 
   ws.on("error", e => {
-    console.log(`error received on client = ${clientID}, err = ${e.code}`)
     ws.send(e)
   }
   );
@@ -128,12 +140,7 @@ webSocketServer.on('connection', (ws, req) => {
       JSON.stringify(seats)
     );
   })
-  ws.on("disconnect", () => {
-    ws.socket.reconnect()
-  }
-  );
   ws.on('close', function () {
-    console.log(`connection closed for client = ${clientID}`)
     clients.delete(ws);
   })
 
