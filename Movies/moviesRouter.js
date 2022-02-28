@@ -1,8 +1,9 @@
 import express from 'express';
-import Controller from './moviesController.js';
+import MovieController from './moviesController.js';
 
 const router = express.Router();
-router.route('/').get(Controller.getAll).post(Controller.create).put(Controller.update);
-router.route('/:id').get(Controller.getOne).delete(Controller.delete);
+router.route('/').get(MovieController.getAllMovies).post(MovieController.createMovie);
+router.route('/:id').get(MovieController.getMovie);
+router.route('/search').post(MovieController.searchMovies);
 
 export default router;
